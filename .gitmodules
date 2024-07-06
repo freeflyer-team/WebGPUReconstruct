@@ -1,0 +1,9 @@
+[submodule "replay/dawn"]
+	path = replay/dawn
+	url = https://dawn.googlesource.com/dawn
+[submodule "replay/glfw"]
+	path = replay/glfw
+	url = https://github.com/glfw/glfw.git
+[submodule "replay/wgpu-native"]
+	path = replay/wgpu-native
+	url = https://github.com/gfx-rs/wgpu-native.git
