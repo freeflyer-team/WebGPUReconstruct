@@ -1,0 +1,70 @@
+name: Upload artifact
+description: Upload build artifacts
+
+inputs:
+  platform:
+    required: true
+    description: The target platform
+  backend:
+    required: true
+    description: Which backend to use (wgpu or Dawn)
+
+runs:
+  using: composite
+  steps:
+# All platforms build the browser extension, but we only need to upload it once.
+    - name: Upload browser extension
+      uses: actions/upload-artifact@v4
+      if: ${{ inputs.platform == 'windows' && inputs.backend == 'wgpu' }}
+      with:
+        name: capture
+        path: |
+          ${{ github.workspace }}/build/capture
+
+# Upload Windows build
+    - name: Upload replayer
+      if: ${{ inputs.platform == 'windows' }}
+      uses: actions/upload-artifact@v4
+      with:
+        name: replay-${{ inputs.platform }}-${{ inputs.backend }}
+        path: |
+          ${{ github.workspace }}/build/replay/Release
+
+# Upload Linux build
+    - name: Upload replayer
+      if: ${{ inputs.platform == 'linux' }}
+      uses: actions/upload-artifact@v4
+      with:
+        name: replay-${{ inputs.platform }}-${{ inputs.backend }}
+        path: |
+          ${{ github.workspace }}/build/replay/WebGPUNativeReplay*
+
+# Rename apk to avoid name conflict
+    - name: Rename APK (Dawn)
+      if: ${{ inputs.platform == 'android' && inputs.backend == 'dawn' }}
+      shell: bash
+      run: |
+        mv $GITHUB_WORKSPACE/build/replay/AndroidDawn/app/build/outputs/apk/release/app-release.apk $GITHUB_WORKSPACE/build/replay/AndroidDawn/app/build/outputs/apk/release/WebGPUNativeReplayDawn.apk
+
+    - name: Rename APK (wgpu)
+      if: ${{ inputs.platform == 'android' && inputs.backend == 'wgpu' }}
+      shell: bash
+      run: |
+        mv $GITHUB_WORKSPACE/build/replay/AndroidWgpu/app/build/outputs/apk/release/app-release.apk $GITHUB_WORKSPACE/build/replay/AndroidWgpu/app/build/outputs/apk/release/WebGPUNativeReplayWgpu.apk
+
+# Upload Android build
+    - name: Upload replayer (Android - Dawn)
+      if: ${{ inputs.platform == 'android' && inputs.backend == 'dawn' }}
+      uses: actions/upload-artifact@v4
+      with:
+        name: replay-${{ inputs.platform }}-${{ inputs.backend }}
+        path: |
+          ${{ github.workspace }}/build/replay/AndroidDawn/app/build/outputs/apk/release/*.apk
+
+    - name: Upload replayer (Android - wgpu)
+      if: ${{ inputs.platform == 'android' && inputs.backend == 'wgpu' }}
+      uses: actions/upload-artifact@v4
+      with:
+        name: replay-${{ inputs.platform }}-${{ inputs.backend }}
+        path: |
+          ${{ github.workspace }}/build/replay/AndroidWgpu/app/build/outputs/apk/release/*.apk
