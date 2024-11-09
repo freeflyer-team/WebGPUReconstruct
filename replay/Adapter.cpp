@@ -66,32 +66,32 @@ void Adapter::CreateInstance() {
 
 void Adapter::CreateSurface(const Window& window) {
 #if __ANDROID__
-    WGPUSurfaceDescriptorFromAndroidNativeWindow platformSurfaceDescriptor = {};
-    platformSurfaceDescriptor.chain.next = nullptr;
-    platformSurfaceDescriptor.chain.sType = WGPUSType_SurfaceDescriptorFromAndroidNativeWindow;
-    platformSurfaceDescriptor.window = window.window;
+    WGPUSurfaceSourceAndroidNativeWindow platformSurfaceSource = {};
+    platformSurfaceSource.chain.next = nullptr;
+    platformSurfaceSource.chain.sType = WGPUSType_SurfaceSourceAndroidNativeWindow;
+    platformSurfaceSource.window = window.window;
 #elif defined(_WIN32) || defined(WIN32)
-    WGPUSurfaceDescriptorFromWindowsHWND platformSurfaceDescriptor = {};
-    platformSurfaceDescriptor.chain.next = nullptr;
-    platformSurfaceDescriptor.chain.sType = WGPUSType_SurfaceDescriptorFromWindowsHWND;
-    platformSurfaceDescriptor.hinstance = GetModuleHandle(NULL);
-    platformSurfaceDescriptor.hwnd = glfwGetWin32Window(window.window);
+    WGPUSurfaceDescriptorFromWindowsHWND platformSurfaceSource = {};
+    platformSurfaceSource.chain.next = nullptr;
+    platformSurfaceSource.chain.sType = WGPUSType_SurfaceSourceWindowsHWND;
+    platformSurfaceSource.hinstance = GetModuleHandle(NULL);
+    platformSurfaceSource.hwnd = glfwGetWin32Window(window.window);
 #elif __APPLE__
 #error "WebGPU surface support has not been implemented on Mac."
-    /// @todo Implement WGPUSurfaceDescriptorFromMetalLayer
+    /// @todo Implement WGPUSurfaceSourceMetalLayer
 #elif __linux__
-    WGPUSurfaceDescriptorFromXlibWindow platformSurfaceDescriptor = {};
-    platformSurfaceDescriptor.chain.next = nullptr;
-    platformSurfaceDescriptor.chain.sType = WGPUSType_SurfaceDescriptorFromXlibWindow;
-    platformSurfaceDescriptor.display = glfwGetX11Display();
-    platformSurfaceDescriptor.window = glfwGetX11Window(window.window);
+    WGPUSurfaceDescriptorFromXlibWindow platformSurfaceSource = {};
+    platformSurfaceSource.chain.next = nullptr;
+    platformSurfaceSource.chain.sType = WGPUSType_SurfaceSourceXlibWindow;
+    platformSurfaceSource.display = glfwGetX11Display();
+    platformSurfaceSource.window = glfwGetX11Window(window.window);
 #else
 #error "Unsupported platform"
 #endif
 
     WGPUSurfaceDescriptor surfaceDescriptor = {};
     surfaceDescriptor.label = nullptr;
-    surfaceDescriptor.nextInChain = reinterpret_cast<const WGPUChainedStruct*>(&platformSurfaceDescriptor);
+    surfaceDescriptor.nextInChain = reinterpret_cast<const WGPUChainedStruct*>(&platformSurfaceSource);
 
     surface = wgpuInstanceCreateSurface(instance, &surfaceDescriptor);
 }

@@ -331,8 +331,8 @@ code[codeLength] = '\\0';
 DebugOutput(code);
 DebugOutput("\\n");
 
-WGPUShaderModuleWGSLDescriptor wgsl = {};
-wgsl.chain.sType = WGPUSType_ShaderModuleWGSLDescriptor;
+WGPUShaderSourceWGSL wgsl = {};
+wgsl.chain.sType = WGPUSType_ShaderSourceWGSL;
 wgsl.code = code;
 
 WGPUShaderModuleDescriptor descriptor = {};

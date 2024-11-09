@@ -286,7 +286,7 @@ GPUStencilFaceState = SubStructType([
 
 GPUDepthStencilState = StructType("GPUDepthStencilState", [
     [GPUTextureFormat, "format"],
-    [Bool, "depthWriteEnabled"],
+    [DepthWriteEnabled, "depthWriteEnabled"],
     [GPUCompareFunction, "depthCompare"],
     [GPUStencilFaceState, "stencilFront", '{}'],
     [GPUStencilFaceState, "stencilBack", '{}'],

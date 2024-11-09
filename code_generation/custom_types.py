@@ -190,3 +190,15 @@ GPUImageCopyBuffer = CustomType(GPUBuffer.save("$name.buffer") + "\n"
     + Uint32DefaultMax.load("$name.layout.rowsPerImage"),
     "WGPUImageCopyBuffer $name;",
     "&$name")
+
+# TODO Remove and use GPUOptionalBool instead once wgpu-native updates to latest headers.
+DepthWriteEnabled = CustomType("""
+__WebGPUReconstruct_file.writeUint8($name);
+""",
+"""
+#if WEBGPU_BACKEND_DAWN
+$name = reader.ReadUint8() ? WGPUOptionalBool_True : WGPUOptionalBool_False;
+#else
+$name = reader.ReadUint8();
+#endif
+""")

@@ -37,9 +37,9 @@ Capture::Capture(string_view filename, Adapter& adapter, Device& device, SwapCha
     }
     
     // Create render pipeline to copy "swapchain" texture to actual swapchain texture.
-    WGPUShaderModuleWGSLDescriptor wgslDescriptor = {};
-    wgslDescriptor.chain.sType = WGPUSType_ShaderModuleWGSLDescriptor;
-    wgslDescriptor.code = R"(
+    WGPUShaderSourceWGSL wgslSource = {};
+    wgslSource.chain.sType = WGPUSType_ShaderSourceWGSL;
+    wgslSource.code = R"(
 struct VertexOutput {
   @builtin(position) Position : vec4f,
   @location(0) fragUV : vec2f,
@@ -69,10 +69,10 @@ fn main(
 )";
     
     WGPUShaderModuleDescriptor moduleDescriptor = {};
-    moduleDescriptor.nextInChain = reinterpret_cast<const WGPUChainedStruct*>(&wgslDescriptor);
+    moduleDescriptor.nextInChain = reinterpret_cast<const WGPUChainedStruct*>(&wgslSource);
     copyVertexShader = wgpuDeviceCreateShaderModule(device.GetDevice(), &moduleDescriptor);
     
-    wgslDescriptor.code = R"(
+    wgslSource.code = R"(
 @group(0) @binding(0) var mySampler: sampler;
 @group(0) @binding(1) var myTexture: texture_2d<f32>;
 
