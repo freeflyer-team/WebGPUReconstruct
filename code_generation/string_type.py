@@ -4,10 +4,7 @@ class StringType:
         capture = 'if (' + name + ' == undefined) {\n'
         capture += '__WebGPUReconstruct_file.writeUint64(0);\n'
         capture += '} else {\n'
-        capture += '__WebGPUReconstruct_file.writeUint64(' + name + '.length);\n'
-        capture += 'for (let stringI = 0; stringI < ' + name + '.length; stringI += 1) {\n'
-        capture += '__WebGPUReconstruct_file.writeUint8(' + name + '.charCodeAt(stringI));\n'
-        capture += '}\n'
+        capture += '__WebGPUReconstruct_file.writeString(String(' + name + '));\n'
         capture += '}\n'
         return capture
     

@@ -20,7 +20,7 @@ class EnumType:
         enumConversionsString += '}\n'
     
     def save(self, name):
-        capture = 'switch (' + name + ') {\n'
+        capture = 'switch (String(' + name + ')) {\n'
         for i in range(len(self.members)):
             capture += 'case "' + self.members[i][0] + '":\n'
             capture += '__WebGPUReconstruct_file.writeUint32(' + str(i) + ');\n'

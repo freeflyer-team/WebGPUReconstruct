@@ -94,6 +94,13 @@ class __WebGPUReconstruct_Uint8Writer {
         this.writeUint8(this.convertFloat64ArrayUint8[7]);
     }
     
+    writeString(value) {
+        this.writeUint64(value.length);
+        for (let i = 0; i < value.length; i += 1) {
+            this.writeUint8(value.charCodeAt(i));
+        }
+    }
+    
     reserve(size) {
         let reservedPosition = { array: this.arrays.length - 1, size: this.currentSize };
         
@@ -399,7 +406,7 @@ function __WebGPUReconstruct_GPUAdapter_requestDevice(originalMethod, descriptor
         overrideDescriptor.requiredFeatures = [];
         if (descriptor.requiredFeatures != undefined) {
             for (const feature of descriptor.requiredFeatures) {
-                if (__WebGPUReconstruct_supportedFeatures.has(feature)) {
+                if (__WebGPUReconstruct_supportedFeatures.has(String(feature))) {
                     overrideDescriptor.requiredFeatures.push(feature);
                 } else {
                     console.error("Unsupported feature: " + feature);
