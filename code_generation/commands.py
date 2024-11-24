@@ -116,7 +116,7 @@ if (offsets0 == undefined) {
 }
 
 // There are two overloads of this function, one taking a Uint32Array containing offsets, and one with a regular array.
-if (offsets0 instanceof Uint32Array) {
+if (offsets0 instanceof Uint32Array && offsets1 != undefined && offsets2 != undefined) {
     __WebGPUReconstruct_file.writeUint64(offsets2);
     for (let i = 0; i < offsets2; i += 1) {
         __WebGPUReconstruct_file.writeUint32(offsets0[offsets1 + i]);
