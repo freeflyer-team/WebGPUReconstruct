@@ -15,7 +15,7 @@ inline void wgpuDeviceTick(WGPUDevice device) {
     wgpuDevicePoll(device, false, nullptr);
 }
 
-// TODO Remove once wgpu-native has update to latest headers.
+// TODO Remove once wgpu-native has updated to latest headers.
 typedef WGPUSurfaceDescriptorFromAndroidNativeWindow WGPUSurfaceSourceAndroidNativeWindow;
 typedef WGPUSurfaceDescriptorFromWindowsHWND WGPUSurfaceSourceWindowsHWND;
 typedef WGPUSurfaceDescriptorFromXlibWindow WGPUSurfaceSourceXlibWindow;

@@ -3,6 +3,7 @@
 
 #include <atomic>
 #include <iostream>
+#include <string_view>
 #include <thread>
 #include <vector>
 
@@ -45,18 +46,22 @@ Device::Device(Adapter& adapter) {
 
 #if WEBGPU_BACKEND_DAWN
     deviceDescriptor.deviceLostCallbackInfo.mode = WGPUCallbackMode_WaitAnyOnly;
-    deviceDescriptor.deviceLostCallbackInfo.callback = [](const WGPUDevice* device, WGPUDeviceLostReason reason, char const* message, void* userdata) {
-        std::cerr << "Device lost " << reason << ": " << message << "\n";
+    deviceDescriptor.deviceLostCallbackInfo.callback = [](const WGPUDevice* device, WGPUDeviceLostReason reason, WGPUStringView message, void* userdata) {
+        std::cerr << "Device lost " << reason << ": " << std::string_view(message.data, message.length) << "\n";
+    };
+
+    deviceDescriptor.uncapturedErrorCallbackInfo.callback = [](WGPUErrorType type, WGPUStringView message, void* userData) {
+        std::cerr << "Uncaptured device error " << type << ": " << std::string_view(message.data, message.length) << "\n";
     };
 #else
     deviceDescriptor.deviceLostCallback = [](WGPUDeviceLostReason reason, char const* message, void* userdata) {
         std::cerr << "Device lost " << reason << ": " << message << "\n";
     };
-#endif
 
     deviceDescriptor.uncapturedErrorCallbackInfo.callback = [](WGPUErrorType type, char const* message, void* userData) {
         std::cerr << "Uncaptured device error " << type << ": " << message << "\n";
     };
+#endif
 
 #if WEBGPU_BACKEND_DAWN
     // Make sure debug labels are forwarded.
@@ -78,12 +83,21 @@ Device::Device(Adapter& adapter) {
     };
     UserData userData;
 
+#if WEBGPU_BACKEND_DAWN
+    wgpuAdapterRequestDevice(
+        adapter.GetAdapter(), &deviceDescriptor, [](WGPURequestDeviceStatus status, WGPUDevice device, WGPUStringView message, void* userdata) {
+            UserData* userData = reinterpret_cast<UserData*>(userdata);
+            userData->device = device;
+            userData->finished = true;
+        }, &userData);
+#else
     wgpuAdapterRequestDevice(
         adapter.GetAdapter(), &deviceDescriptor, [](WGPURequestDeviceStatus status, WGPUDevice device, char const* message, void* userdata) {
             UserData* userData = reinterpret_cast<UserData*>(userdata);
             userData->device = device;
             userData->finished = true;
-        }, &userData);
+        }, & userData);
+#endif
 
     // Wait for request to finish.
     while (!userData.finished) {

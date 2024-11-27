@@ -333,7 +333,12 @@ DebugOutput("\\n");
 
 WGPUShaderSourceWGSL wgsl = {};
 wgsl.chain.sType = WGPUSType_ShaderSourceWGSL;
+#if WEBGPU_BACKEND_DAWN
+wgsl.code.data = code;
+wgsl.code.length = codeLength;
+#else
 wgsl.code = code;
+#endif
 
 WGPUShaderModuleDescriptor descriptor = {};
 descriptor.nextInChain = reinterpret_cast<const WGPUChainedStruct*>(&wgsl);

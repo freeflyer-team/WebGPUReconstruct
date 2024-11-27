@@ -40,7 +40,7 @@ To build with the wgpu backend (`--wgpu`), you need to setup wgpu's dependencies
 - Download and install the wgpu-native prerequisites described in the [docs](https://github.com/gfx-rs/wgpu-native/wiki/Getting-Started#prerequisites). You don't need the dependencies for the native examples.
 
 ### Android
-Install [Android Studio](https://developer.android.com/studio) and use it to download Android SDK and NDK.
+Install [Android Studio](https://developer.android.com/studio) and use it to download Android SDK and NDK 26.3.11579264.
 
 Enable Android builds and set the NDK path when configuring the build.
 ```
@@ -51,5 +51,3 @@ python ./configure.py --dawn --wgpu --android --ndk PATH_TO_NDK_DIRECTORY --targ
 ```
 python ./build.py
 ```
-
-If you get errors about missing `lunwind` when compiling for Android, use a newer NDK. 25.1.8937393 has been verified to work.

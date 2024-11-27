@@ -43,6 +43,10 @@ SwapChain::SwapChain(Adapter& adapter, Device& device, const Window& window, uin
 
 SwapChain::~SwapChain() {
     wgpuSurfaceUnconfigure(surface);
+#if WEBGPU_BACKEND_DAWN
+    // TODO Remove Dawn bug workaround.
+    wgpuSurfaceRelease(surface);
+#endif
 }
 
 WGPUSurfaceTexture SwapChain::GetCurrentTexture() {

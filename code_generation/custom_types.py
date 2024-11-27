@@ -173,9 +173,15 @@ const_cast<WGPUConstantEntry*>(&$names[keyI])->value = reader.ReadFloat64();
 }
 """, 'assert(false);\n', '$name', """
 for (uint64_t keyI = 0; keyI < $nameCount; ++keyI) {
+#if WEBGPU_BACKEND_DAWN
+if ($names[keyI].key.length > 0) {
+delete[] $names[keyI].key.data;
+}
+#else
 if ($names[keyI].key != nullptr) {
 delete[] $names[keyI].key;
 }
+#endif
 }
 delete[] $names;
 """)

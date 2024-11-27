@@ -7,6 +7,7 @@
 #include <atomic>
 #include <thread>
 #include <iostream>
+#include <string_view>
 
 #if __ANDROID__
 
@@ -34,7 +35,10 @@ Adapter::Adapter(const Window& window, WGPUBackendType backendType) {
 
 Adapter::~Adapter() {
     wgpuAdapterRelease(adapter);
+#if !WEBGPU_BACKEND_DAWN
+    // TODO Remove Dawn bug workaround.
     wgpuSurfaceRelease(surface);
+#endif
     wgpuInstanceRelease(instance);
 }
 
@@ -90,7 +94,10 @@ void Adapter::CreateSurface(const Window& window) {
 #endif
 
     WGPUSurfaceDescriptor surfaceDescriptor = {};
+#if WEBGPU_BACKEND_WGPU
+    // TODO Remove once wgpu switches to WGPUStringView.
     surfaceDescriptor.label = nullptr;
+#endif
     surfaceDescriptor.nextInChain = reinterpret_cast<const WGPUChainedStruct*>(&platformSurfaceSource);
 
     surface = wgpuInstanceCreateSurface(instance, &surfaceDescriptor);
@@ -109,12 +116,21 @@ void Adapter::RequestAdapter(WGPUBackendType backendType) {
     };
     UserData userData;
 
+#if WEBGPU_BACKEND_DAWN
+    wgpuInstanceRequestAdapter(
+        instance, &options, [](WGPURequestAdapterStatus status, WGPUAdapter adapter, WGPUStringView message, void* userdata) {
+            UserData* userData = reinterpret_cast<UserData*>(userdata);
+            userData->adapter = adapter;
+            userData->finished = true;
+        }, &userData);
+#else
     wgpuInstanceRequestAdapter(
         instance, &options, [](WGPURequestAdapterStatus status, WGPUAdapter adapter, char const* message, void* userdata) {
             UserData* userData = reinterpret_cast<UserData*>(userdata);
             userData->adapter = adapter;
             userData->finished = true;
-        }, &userData);
+        }, & userData);
+#endif
 
     // Wait for request to finish.
     while (!userData.finished) {
@@ -127,7 +143,12 @@ void Adapter::RequestAdapter(WGPUBackendType backendType) {
     WGPUAdapterInfo info = {};
     wgpuAdapterGetInfo(adapter, &info);
 
-    std::cout << "Selected adapter " << info.device << "\n";
+#if WEBGPU_BACKEND_DAWN
+    const std::string_view deviceName(info.device.data, info.device.length);
+#else
+    const std::string_view deviceName = info.device;
+#endif
+    std::cout << "Selected adapter " << deviceName << "\n";
 
     std::cout << "Backend type: ";
     switch (info.backendType) {
