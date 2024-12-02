@@ -1,6 +1,6 @@
 #include "Uint8Reader.hpp"
 
-#include <iostream>
+#include "Logging.hpp"
 
 using namespace std;
 
@@ -10,7 +10,7 @@ Uint8Reader::Uint8Reader(string_view filename) {
     file.open(filename.data(), ios_base::in | ios_base::binary);
     
     if (!file.good()) {
-        cerr << "Failed to open file: " << filename << "\n";
+        Logging::Error("Failed to open file: " + std::string(filename) + "\n");
         exit(1);
     }
 }

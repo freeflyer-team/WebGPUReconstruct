@@ -2,17 +2,14 @@
 
 #include "../../replay/Adapter.hpp"
 #include "../../replay/Device.hpp"
+#include "../../replay/Logging.hpp"
 #include "../../replay/SwapChain.hpp"
 #include <algorithm>
-#include <iostream>
 #include <cassert>
 #include <climits>
 #include <cmath>
 #include <string>
 #include <thread>
-#if __ANDROID__
-#include <android/log.h>
-#endif
 
 using namespace std;
 
@@ -30,9 +27,9 @@ $ENUM_CONVERSIONS
 Capture::Capture(string_view filename, Adapter& adapter, Device& device, SwapChain& swapChain) : reader(filename), adapter(adapter), device(device), swapChain(swapChain) {
     const uint32_t version = reader.ReadUint32();
     if (version != $FILE_VERSION) {
-        cerr << "The capture file was saved using a different version of WebGPUReconstruct.\n";
-        cerr << "Capture version: " << version << "\n";
-        cerr << "WebGPUNativeReplay version: " << $FILE_VERSION << "\n";
+        Logging::Error("The capture file was saved using a different version of WebGPUReconstruct.\n");
+        Logging::Error("Capture version: " + std::to_string(version) + "\n");
+        Logging::Error("WebGPUNativeReplay version: " + std::to_string($FILE_VERSION) + "\n");
         exit(1);
     }
     
@@ -145,20 +142,12 @@ Capture::~Capture() {
 
 void Capture::DebugOutput(string text) {
 #ifndef NDEBUG
-#if __ANDROID__
-    __android_log_print(ANDROID_LOG_INFO, "WebGPUNativeReplay", "%s", text.c_str());
-#else
-    cout << text;
-#endif
+    Logging::Info(text);
 #endif
 }
 
 void Capture::ErrorOutput(string text) {
-#if __ANDROID__
-    __android_log_print(ANDROID_LOG_ERROR, "WebGPUNativeReplay", "%s", text.c_str());
-#else
-    cerr << text;
-#endif
+    Logging::Error(text);
 }
 
 bool Capture::RunNextCommand() {

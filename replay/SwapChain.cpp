@@ -1,8 +1,8 @@
 #include "SwapChain.hpp"
 #include "Adapter.hpp"
 #include "Device.hpp"
+#include "Logging.hpp"
 #include <cassert>
-#include <iostream>
 
 namespace WebGPUNativeReplay {
 
@@ -19,13 +19,13 @@ SwapChain::SwapChain(Adapter& adapter, Device& device, const Window& window, uin
     }
 
     if (swapChainFormat == WGPUTextureFormat_Undefined) {
-        std::cerr << "Could not find suitable surface format.\n";
+        Logging::Error("Could not find suitable surface format.\n");
         exit(EXIT_FAILURE);
     }
 
     const WGPUTextureUsageFlags requiredUsage = WGPUTextureUsage_RenderAttachment;
     if ((surfaceCapabilities.usages & requiredUsage) != requiredUsage) {
-        std::cerr << "Surface doesn't support the required texture usage.\n";
+        Logging::Error("Surface doesn't support the required texture usage.\n");
         exit(EXIT_FAILURE);
     }
 
@@ -43,7 +43,7 @@ SwapChain::SwapChain(Adapter& adapter, Device& device, const Window& window, uin
         if (mailboxSupported) {
             presentMode = WGPUPresentMode_Mailbox;
         } else {
-            std::cout << "Mailbox present mode not supported. Falling back to Fifo.\n";
+            Logging::Warn("Mailbox present mode not supported. Falling back to Fifo.\n");
         }
     }
 

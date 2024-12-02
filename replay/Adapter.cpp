@@ -6,8 +6,8 @@
 #endif
 #include <atomic>
 #include <thread>
-#include <iostream>
 #include <string_view>
+#include "Logging.hpp"
 
 #if __ANDROID__
 
@@ -55,9 +55,9 @@ void Adapter::InitializeBackend() {
     // Initialize Dawn
     DawnProcTable procs = dawn::native::GetProcs();
     dawnProcSetProcs(&procs);
-    std::cout << "Using Dawn backend.\n";
+    Logging::Info("Using Dawn backend.\n");
 #else
-    std::cout << "Using wgpu backend.\n";
+    Logging::Info("Using wgpu backend.\n");
 #endif
 }
 
@@ -148,33 +148,33 @@ void Adapter::RequestAdapter(WGPUBackendType backendType) {
 #else
     const std::string_view deviceName = info.device;
 #endif
-    std::cout << "Selected adapter " << deviceName << "\n";
+    Logging::Info("Selected adapter " + std::string(deviceName) + "\n");
 
-    std::cout << "Backend type: ";
+    Logging::Info("Backend type: ");
     switch (info.backendType) {
     case WGPUBackendType_Null:
-        std::cout << "Null.\n";
+        Logging::Info("Null.\n");
         break;
     case WGPUBackendType_WebGPU:
-        std::cout << "WebGPU.\n";
+        Logging::Info("WebGPU.\n");
         break;
     case WGPUBackendType_D3D11:
-        std::cout << "D3D11.\n";
+        Logging::Info("D3D11.\n");
         break;
     case WGPUBackendType_D3D12:
-        std::cout << "D3D12.\n";
+        Logging::Info("D3D12.\n");
         break;
     case WGPUBackendType_Metal:
-        std::cout << "Metal.\n";
+        Logging::Info("Metal.\n");
         break;
     case WGPUBackendType_Vulkan:
-        std::cout << "Vulkan.\n";
+        Logging::Info("Vulkan.\n");
         break;
     case WGPUBackendType_OpenGL:
-        std::cout << "OpenGL.\n";
+        Logging::Info("OpenGL.\n");
         break;
     case WGPUBackendType_OpenGLES:
-        std::cout << "OpenGL ES.\n";
+        Logging::Info("OpenGL ES.\n");
         break;
     }
 }

@@ -1,11 +1,9 @@
 #include "TestApp.hpp"
 
 #include "../build/replay/Capture.hpp"
-#include <iostream>
 #include <chrono>
-#if __ANDROID__
-#include <android/log.h>
-#endif
+#include <string>
+#include "Logging.hpp"
 
 using namespace std;
 
@@ -34,16 +32,8 @@ void TestApp::RunCapture(string_view filename) {
     if (profile) {
         const chrono::high_resolution_clock::time_point end = chrono::high_resolution_clock::now();
         const chrono::duration<double> duration = chrono::duration_cast<chrono::duration<double>>(end - start);
-        ProfilingOutput("Ran capture in " + to_string(duration.count()) + " seconds.\n");
+        Logging::Info("Ran capture in " + to_string(duration.count()) + " seconds.\n");
     }
-}
-
-void TestApp::ProfilingOutput(string text) {
-#if __ANDROID__
-    __android_log_print(ANDROID_LOG_INFO, "WebGPUNativeReplay", "%s", text.c_str());
-#else
-    cout << text;
-#endif
 }
 
 }

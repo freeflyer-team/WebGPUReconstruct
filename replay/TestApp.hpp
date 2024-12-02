@@ -4,7 +4,6 @@
 #include "Device.hpp"
 #include "SwapChain.hpp"
 #include <string_view>
-#include <string>
 
 namespace WebGPUNativeReplay {
 
@@ -22,8 +21,6 @@ class TestApp {
     Device device;
     SwapChain swapChain;
     bool profile;
-
-    void ProfilingOutput(std::string text);
 
     TestApp(const TestApp&) = delete;
     TestApp& operator=(const TestApp&) = delete;

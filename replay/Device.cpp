@@ -1,8 +1,8 @@
 #include "Device.hpp"
 #include "Adapter.hpp"
+#include "Logging.hpp"
 
 #include <atomic>
-#include <iostream>
 #include <string_view>
 #include <thread>
 #include <vector>
@@ -47,19 +47,19 @@ Device::Device(Adapter& adapter) {
 #if WEBGPU_BACKEND_DAWN
     deviceDescriptor.deviceLostCallbackInfo.mode = WGPUCallbackMode_WaitAnyOnly;
     deviceDescriptor.deviceLostCallbackInfo.callback = [](const WGPUDevice* device, WGPUDeviceLostReason reason, WGPUStringView message, void* userdata) {
-        std::cerr << "Device lost " << reason << ": " << std::string_view(message.data, message.length) << "\n";
+        Logging::Error("Device lost " + std::to_string(reason) + ": " + std::string(std::string_view(message.data, message.length)) + "\n");
     };
 
     deviceDescriptor.uncapturedErrorCallbackInfo.callback = [](WGPUErrorType type, WGPUStringView message, void* userData) {
-        std::cerr << "Uncaptured device error " << type << ": " << std::string_view(message.data, message.length) << "\n";
+        Logging::Error("Uncaptured device error " + std::to_string(type) + ": " + std::string(std::string_view(message.data, message.length)) + "\n");
     };
 #else
     deviceDescriptor.deviceLostCallback = [](WGPUDeviceLostReason reason, char const* message, void* userdata) {
-        std::cerr << "Device lost " << reason << ": " << message << "\n";
+        Logging::Error("Device lost " + std::to_string(reason) + ": " + std::string(message) + "\n");
     };
 
     deviceDescriptor.uncapturedErrorCallbackInfo.callback = [](WGPUErrorType type, char const* message, void* userData) {
-        std::cerr << "Uncaptured device error " << type << ": " << message << "\n";
+        Logging::Error("Uncaptured device error " + std::to_string(type) + ": " + std::string(message) + "\n");
     };
 #endif
 

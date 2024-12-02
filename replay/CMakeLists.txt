@@ -20,6 +20,8 @@ set(SRC
     ../build/replay/Capture.hpp
     Device.cpp
     Device.hpp
+    Logging.cpp
+    Logging.hpp
     SwapChain.cpp
     SwapChain.hpp
     TestApp.cpp
