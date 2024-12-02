@@ -29,13 +29,31 @@ SwapChain::SwapChain(Adapter& adapter, Device& device, const Window& window, uin
         exit(EXIT_FAILURE);
     }
 
+    // When profiling, prefer mailbox present mode if available, to avoid VSync.
+    WGPUPresentMode presentMode = WGPUPresentMode_Fifo;
+    if (profile) {
+        bool mailboxSupported = false;
+        for (size_t i = 0; i < surfaceCapabilities.presentModeCount; ++i) {
+            if (surfaceCapabilities.presentModes[i] == WGPUPresentMode_Mailbox) {
+                mailboxSupported = true;
+                break;
+            }
+        }
+
+        if (mailboxSupported) {
+            presentMode = WGPUPresentMode_Mailbox;
+        } else {
+            std::cout << "Mailbox present mode not supported. Falling back to Fifo.\n";
+        }
+    }
+
     WGPUSurfaceConfiguration configuration = {};
     configuration.device = device.GetDevice();
     configuration.width = width;
     configuration.height = height;
     configuration.format = swapChainFormat;
     configuration.usage = WGPUTextureUsage_RenderAttachment;
-    configuration.presentMode = (profile ? WGPUPresentMode_Mailbox : WGPUPresentMode_Fifo);
+    configuration.presentMode = presentMode;
     configuration.alphaMode = surfaceCapabilities.alphaModes[0];
 
     wgpuSurfaceConfigure(surface, &configuration);
