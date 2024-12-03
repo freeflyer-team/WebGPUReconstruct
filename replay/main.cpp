@@ -3,6 +3,7 @@
 #include <cstring>
 #include <GLFW/glfw3.h>
 #include "Adapter.hpp"
+#include "../build/replay/Constants.hpp"
 #include "Device.hpp"
 #include "SwapChain.hpp"
 #include "TestApp.hpp"
@@ -16,6 +17,7 @@ int main(int argc, char* argv[]) {
     int height = 480;
     const char* filename = nullptr;
     bool showHelp = false;
+    bool showVersion = false;
     bool profile = false;
     WGPUBackendType backendType = WGPUBackendType_Undefined;
     
@@ -35,6 +37,8 @@ int main(int argc, char* argv[]) {
             }
         } else if (strcmp("--help", argv[i]) == 0) {
             showHelp = true;
+        } else if (strcmp("--version", argv[i]) == 0) {
+            showVersion = true;
         } else if (strcmp("--fullscreen", argv[i]) == 0) {
             fullscreen = true;
         } else if (strcmp("--vulkan", argv[i]) == 0) {
@@ -52,10 +56,17 @@ int main(int argc, char* argv[]) {
         }
     }
     
+    if (showVersion) {
+        cout << "WebGPUNativeReplay version: " << WebGPUNativeReplay::VERSION_MAJOR << "." << WebGPUNativeReplay::VERSION_MINOR << "\n";
+        cout << "Capture file format version: " << WebGPUNativeReplay::FILE_VERSION << "\n";
+        return 0;
+    }
+
     // If no filename was specified (or user asked for help), print usage instructions.
     if (filename == nullptr || showHelp) {
         cout << "WebGPUNativeReplay [options] filename.wgpur\n";
         cout << "  --help          Show this help screen.\n";
+        cout << "  --version       Show version information.\n";
         cout << "  --width  WIDTH  Specify the width of the window.\n";
         cout << "  --height HEIGHT Specify the height of the window.\n";
         cout << "  --fullscreen    Run capture in fullscreen mode.\n";

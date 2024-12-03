@@ -75,6 +75,8 @@ def build_replay_android(configuration):
         
         replace_string_in_file("build/replay/AndroidDawn/app/src/main/AndroidManifest.xml", "$LIBNAME", "WebGPUNativeReplayDawn")
         replace_string_in_file("build/replay/AndroidDawn/app/src/main/java/net/chainsawkitten/webgpunativereplay/MainActivity.java", "$LIBNAME", "WebGPUNativeReplayDawn")
+        replace_string_in_file("build/replay/AndroidDawn/app/build.gradle", "$VERSION_CODE", str(versionInt))
+        replace_string_in_file("build/replay/AndroidDawn/app/build.gradle", "$VERSION_STRING", versionString)
         replace_string_in_file("build/replay/AndroidDawn/app/build.gradle", "$BUILD_WITH_DAWN", "ON")
         replace_string_in_file("build/replay/AndroidDawn/app/build.gradle", "$BUILD_WITH_WGPU", "OFF")
         
@@ -86,6 +88,8 @@ def build_replay_android(configuration):
         
         replace_string_in_file("build/replay/AndroidWgpu/app/src/main/AndroidManifest.xml", "$LIBNAME", "WebGPUNativeReplayWgpu")
         replace_string_in_file("build/replay/AndroidWgpu/app/src/main/java/net/chainsawkitten/webgpunativereplay/MainActivity.java", "$LIBNAME", "WebGPUNativeReplayWgpu")
+        replace_string_in_file("build/replay/AndroidWgpu/app/build.gradle", "$VERSION_CODE", str(versionInt))
+        replace_string_in_file("build/replay/AndroidWgpu/app/build.gradle", "$VERSION_STRING", versionString)
         replace_string_in_file("build/replay/AndroidWgpu/app/build.gradle", "$BUILD_WITH_DAWN", "OFF")
         replace_string_in_file("build/replay/AndroidWgpu/app/build.gradle", "$BUILD_WITH_WGPU", "ON")
         

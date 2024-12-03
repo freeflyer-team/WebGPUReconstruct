@@ -18,6 +18,7 @@ set(SRC
     Adapter.hpp
     ../build/replay/Capture.cpp
     ../build/replay/Capture.hpp
+    ../build/replay/Constants.hpp
     Device.cpp
     Device.hpp
     Logging.cpp

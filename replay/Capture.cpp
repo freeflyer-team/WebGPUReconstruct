@@ -4,6 +4,7 @@
 #include "../../replay/Device.hpp"
 #include "../../replay/Logging.hpp"
 #include "../../replay/SwapChain.hpp"
+#include "Constants.hpp"
 #include <algorithm>
 #include <cassert>
 #include <climits>
@@ -26,10 +27,10 @@ $ENUM_CONVERSIONS
 
 Capture::Capture(string_view filename, Adapter& adapter, Device& device, SwapChain& swapChain) : reader(filename), adapter(adapter), device(device), swapChain(swapChain) {
     const uint32_t version = reader.ReadUint32();
-    if (version != $FILE_VERSION) {
+    if (version != FILE_VERSION) {
         Logging::Error("The capture file was saved using a different version of WebGPUReconstruct.\n");
         Logging::Error("Capture version: " + std::to_string(version) + "\n");
-        Logging::Error("WebGPUNativeReplay version: " + std::to_string($FILE_VERSION) + "\n");
+        Logging::Error("WebGPUNativeReplay version: " + std::to_string(FILE_VERSION) + "\n");
         exit(1);
     }
     
