@@ -9,6 +9,9 @@ extern "C" {
 
 #include <game-activity/native_app_glue/android_native_app_glue.c>
 
+WebGPUNativeReplay::TestApp* testApp = nullptr;
+std::string filename;
+
 void handle_cmd(android_app *app, int32_t cmd) {
     switch (cmd) {
         case APP_CMD_INIT_WINDOW:
@@ -18,12 +21,10 @@ void handle_cmd(android_app *app, int32_t cmd) {
             
             int width = ANativeWindow_getWidth(window.window);
             int height = ANativeWindow_getWidth(window.window);
-            std::string filename = std::string(app->activity->externalDataPath) + "/capture.wgpur";
+            filename = std::string(app->activity->externalDataPath) + "/capture.wgpur";
             __android_log_print(ANDROID_LOG_INFO, "WebGPUNativeReplay", "Filename: %s", filename.c_str());
             
-            WebGPUNativeReplay::TestApp testApp(window, width, height);
-            testApp.RunCapture(filename);
-            
+            testApp = new WebGPUNativeReplay::TestApp(window, width, height);
             break;
         }
         case APP_CMD_TERM_WINDOW:
@@ -47,6 +48,13 @@ void android_main(struct android_app *app) {
             if (pSource) {
                 pSource->process(app, pSource);
             }
+        }
+        
+        if (testApp != nullptr) {
+            testApp->RunCapture(filename);
+            delete testApp;
+            testApp = nullptr;
+            GameActivity_finish(app->activity);
         }
     } while (!app->destroyRequested);
 }
