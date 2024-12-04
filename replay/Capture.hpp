@@ -15,10 +15,17 @@ class SwapChain;
 
 class Capture {
   public:
+    enum class Status {
+        FRAME_START,
+        FRAME_END,
+        COMMAND,
+        END_OF_CAPTURE
+    };
+    
     Capture(std::string_view filename, Adapter& adapter, Device& device, SwapChain& swapChain);
     ~Capture();
 
-    bool RunNextCommand();
+    Status RunNextCommand();
 
   private:
     Adapter& adapter;

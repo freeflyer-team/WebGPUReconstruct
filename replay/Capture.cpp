@@ -151,29 +151,29 @@ void Capture::ErrorOutput(string text) {
     Logging::Error(text);
 }
 
-bool Capture::RunNextCommand() {
+Capture::Status Capture::RunNextCommand() {
     const uint32_t commandCode = reader.ReadUint32();
     size_t stringLength;
 
     switch (commandCode) {
     case 0:
         DebugOutput("End of capture reached.\n");
-        return false;
+        return Status::END_OF_CAPTURE;
     case 1:
         DebugOutput("Start of frame.\n");
         hasBegun = true;
-        break;
+        return Status::FRAME_START;
     case 2:
     {
         // Ignore any "end of frame" before the first "start of frame".
         if (!hasBegun) {
-            return true;
+            return Status::FRAME_END;
         }
         
         DebugOutput("End of frame\n");
         
         if (canvasTextures.empty()) {
-            return true;
+            return Status::FRAME_END;
         }
         
         // Copy our "swapchain" textures to the actual swapchain texture.
@@ -245,7 +245,7 @@ bool Capture::RunNextCommand() {
         
         // Cleanup temporary resources.
         wgpuTextureViewRelease(attachment.view);
-        break;
+        return Status::FRAME_END;
     }
     case 3:
     {
@@ -294,7 +294,7 @@ $RUN_COMMANDS
         exit(1);
     }
 
-    return true;
+    return Status::COMMAND;
 }
 
 }

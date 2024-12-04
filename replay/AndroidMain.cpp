@@ -11,6 +11,7 @@ extern "C" {
 
 WebGPUNativeReplay::TestApp* testApp = nullptr;
 std::string filename;
+bool terminated = false;
 
 void handle_cmd(android_app *app, int32_t cmd) {
     switch (cmd) {
@@ -25,10 +26,11 @@ void handle_cmd(android_app *app, int32_t cmd) {
             __android_log_print(ANDROID_LOG_INFO, "WebGPUNativeReplay", "Filename: %s", filename.c_str());
             
             testApp = new WebGPUNativeReplay::TestApp(window, width, height);
+            terminated = false;
             break;
         }
         case APP_CMD_TERM_WINDOW:
-            
+            terminated = true;
             break;
         default:
             break;
@@ -51,7 +53,14 @@ void android_main(struct android_app *app) {
         }
         
         if (testApp != nullptr) {
-            testApp->RunCapture(filename);
+            testApp->RunCapture(filename, [&events, pSource, app]() {
+                while (ALooper_pollAll(0, nullptr, &events, (void **) &pSource) >= 0) {
+                    if (pSource) {
+                        pSource->process(app, pSource);
+                    }
+                }
+                return !terminated;
+            });
             delete testApp;
             testApp = nullptr;
             GameActivity_finish(app->activity);

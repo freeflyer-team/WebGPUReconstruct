@@ -96,7 +96,10 @@ int main(int argc, char* argv[]) {
     // Start replay.
     {
         WebGPUNativeReplay::TestApp testApp(window, width, height, backendType, profile);
-        testApp.RunCapture(filename);
+        testApp.RunCapture(filename, [&window]() {
+            glfwPollEvents();
+            return !glfwWindowShouldClose(window.window);
+        });
     }
 
     glfwDestroyWindow(window.window);

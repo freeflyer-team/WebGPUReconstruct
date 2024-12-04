@@ -4,6 +4,7 @@
 #include "Device.hpp"
 #include "SwapChain.hpp"
 #include <string_view>
+#include <functional>
 
 namespace WebGPUNativeReplay {
 
@@ -14,7 +15,7 @@ class TestApp {
     TestApp(const Window& window, uint32_t width, uint32_t height, WGPUBackendType backendType = WGPUBackendType_Undefined, bool profile = false);
     ~TestApp();
 
-    void RunCapture(std::string_view filename);
+    void RunCapture(std::string_view filename, std::function<bool(void)> frameCallback);
 
   private:
     Adapter adapter;
