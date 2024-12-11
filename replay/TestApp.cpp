@@ -13,8 +13,7 @@ namespace WebGPUNativeReplay {
 TestApp::TestApp(const Window& window, const Configuration& configuration) :
     adapter(window, configuration.backendType),
     device(adapter),
-    swapChain(adapter, device, window, configuration.width, configuration.height, configuration.profile),
-    profile(configuration.profile)
+    swapChain(adapter, device, window, configuration.width, configuration.height, configuration.mailbox)
 {
 
 }
@@ -50,7 +49,7 @@ void TestApp::RunCapture(string_view filename, std::function<bool(void)> frameCa
         }
     }
 
-    if (profile && !prematureQuit) {
+    if (!prematureQuit) {
         const chrono::high_resolution_clock::time_point end = chrono::high_resolution_clock::now();
         const chrono::duration<double> duration = chrono::duration_cast<chrono::duration<double>>(end - start);
         Logging::Info("Ran capture in " + to_string(duration.count()) + " seconds.\n");

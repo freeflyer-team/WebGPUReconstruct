@@ -6,7 +6,7 @@
 
 namespace WebGPUNativeReplay {
 
-SwapChain::SwapChain(Adapter& adapter, Device& device, const Window& window, uint32_t width, uint32_t height, bool profile) : surface(adapter.GetSurface()) {
+SwapChain::SwapChain(Adapter& adapter, Device& device, const Window& window, uint32_t width, uint32_t height, bool mailbox) : surface(adapter.GetSurface()) {
     // Find suitable surface format.
     WGPUSurfaceCapabilities surfaceCapabilities = { 0 };
     wgpuSurfaceGetCapabilities(surface, adapter.GetAdapter(), &surfaceCapabilities);
@@ -31,7 +31,7 @@ SwapChain::SwapChain(Adapter& adapter, Device& device, const Window& window, uin
 
     // When profiling, prefer mailbox present mode if available, to avoid VSync.
     WGPUPresentMode presentMode = WGPUPresentMode_Fifo;
-    if (profile) {
+    if (mailbox) {
         bool mailboxSupported = false;
         for (size_t i = 0; i < surfaceCapabilities.presentModeCount; ++i) {
             if (surfaceCapabilities.presentModes[i] == WGPUPresentMode_Mailbox) {

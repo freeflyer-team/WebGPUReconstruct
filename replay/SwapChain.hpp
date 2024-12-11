@@ -10,7 +10,7 @@ struct Window;
 
 class SwapChain {
   public:
-    SwapChain(Adapter& adapter, Device& device, const Window& window, uint32_t width, uint32_t height, bool profile);
+    SwapChain(Adapter& adapter, Device& device, const Window& window, uint32_t width, uint32_t height, bool mailbox);
     ~SwapChain();
 
     WGPUSurfaceTexture GetCurrentTexture();

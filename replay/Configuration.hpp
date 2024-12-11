@@ -20,7 +20,7 @@ class Configuration {
     std::string filename = "";
     bool showHelp = false;
     bool showVersion = false;
-    bool profile = false;
+    bool mailbox = false;
     WGPUBackendType backendType = WGPUBackendType_Undefined;
 };
 

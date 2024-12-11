@@ -37,8 +37,8 @@ Configuration::Configuration(const std::vector<std::string>& arguments) {
             backendType = WGPUBackendType_D3D12;
         } else if (argument == "--metal") {
             backendType = WGPUBackendType_Metal;
-        } else if (argument == "--profile") {
-            profile = true;
+        } else if (argument == "--mailbox") {
+            mailbox = true;
         } else {
             filename = argument;
         }
@@ -61,7 +61,7 @@ void Configuration::ShowHelp() {
     Logging::Info("  --d3d11         Request Direct3D 11 backend.\n");
     Logging::Info("  --d3d12         Request Direct3D 12 backend.\n");
     Logging::Info("  --metal         Request Metal backend.\n");
-    Logging::Info("  --profile       Turn off VSync and measure replay time.\n");
+    Logging::Info("  --mailbox       Use mailbox present mode (turn off VSync).\n");
 }
 
 }

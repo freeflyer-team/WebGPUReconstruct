@@ -22,7 +22,6 @@ class TestApp {
     Adapter adapter;
     Device device;
     SwapChain swapChain;
-    bool profile;
 
     TestApp(const TestApp&) = delete;
     TestApp& operator=(const TestApp&) = delete;
