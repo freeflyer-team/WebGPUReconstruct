@@ -19,6 +19,8 @@ set(SRC
     ../build/replay/Capture.cpp
     ../build/replay/Capture.hpp
     ../build/replay/Constants.hpp
+    Configuration.cpp
+    Configuration.hpp
     Device.cpp
     Device.hpp
     Logging.cpp

@@ -9,10 +9,11 @@
 namespace WebGPUNativeReplay {
 
 struct Window;
+class Configuration;
 
 class TestApp {
   public:
-    TestApp(const Window& window, uint32_t width, uint32_t height, WGPUBackendType backendType = WGPUBackendType_Undefined, bool profile = false);
+    TestApp(const Window& window, const Configuration& configuration);
     ~TestApp();
 
     void RunCapture(std::string_view filename, std::function<bool(void)> frameCallback);

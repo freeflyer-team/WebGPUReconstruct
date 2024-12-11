@@ -3,17 +3,18 @@
 #include "../build/replay/Capture.hpp"
 #include <chrono>
 #include <string>
+#include "Configuration.hpp"
 #include "Logging.hpp"
 
 using namespace std;
 
 namespace WebGPUNativeReplay {
 
-TestApp::TestApp(const Window& window, uint32_t width, uint32_t height, WGPUBackendType backendType, bool profile) :
-    adapter(window, backendType),
+TestApp::TestApp(const Window& window, const Configuration& configuration) :
+    adapter(window, configuration.backendType),
     device(adapter),
-    swapChain(adapter, device, window, width, height, profile),
-    profile(profile)
+    swapChain(adapter, device, window, configuration.width, configuration.height, configuration.profile),
+    profile(configuration.profile)
 {
 
 }
@@ -24,6 +25,9 @@ TestApp::~TestApp() {
 
 void TestApp::RunCapture(string_view filename, std::function<bool(void)> frameCallback) {
     Capture capture(filename, adapter, device, swapChain);
+    if (!capture.IsValid()) {
+        return;
+    }
 
     const chrono::high_resolution_clock::time_point start = chrono::high_resolution_clock::now();
 

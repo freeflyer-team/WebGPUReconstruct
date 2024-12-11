@@ -25,6 +25,7 @@ class Capture {
     Capture(std::string_view filename, Adapter& adapter, Device& device, SwapChain& swapChain);
     ~Capture();
 
+    bool IsValid() const;
     Status RunNextCommand();
 
   private:
@@ -48,6 +49,7 @@ $MAPS
     };
     std::map<uint32_t, CanvasTexture> canvasTextures;
 
+    bool valid = true;
     bool hasBegun = false;
     WGPUShaderModule copyVertexShader;
     WGPUShaderModule copyFragmentShader;

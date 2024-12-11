@@ -31,7 +31,8 @@ Capture::Capture(string_view filename, Adapter& adapter, Device& device, SwapCha
         Logging::Error("The capture file was saved using a different version of WebGPUReconstruct.\n");
         Logging::Error("Capture version: " + std::to_string(version) + "\n");
         Logging::Error("WebGPUNativeReplay version: " + std::to_string(FILE_VERSION) + "\n");
-        exit(1);
+        valid = false;
+        return;
     }
     
     // Create render pipeline to copy "swapchain" texture to actual swapchain texture.
@@ -128,17 +129,23 @@ fn main(@location(0) fragUV: vec2f) -> @location(0) vec4f {
 }
 
 Capture::~Capture() {
-    for (const auto &it : canvasTextures) {
-        wgpuTextureRelease(it.second.texture);
-        if (it.second.viewFormatCount != 0) {
-            delete[] it.second.viewFormats;
+    if (valid) {
+        for (const auto &it : canvasTextures) {
+            wgpuTextureRelease(it.second.texture);
+            if (it.second.viewFormatCount != 0) {
+                delete[] it.second.viewFormats;
+            }
         }
+        
+        wgpuRenderPipelineRelease(copyRenderPipeline);
+        wgpuShaderModuleRelease(copyVertexShader);
+        wgpuShaderModuleRelease(copyFragmentShader);
+        wgpuSamplerRelease(sampler);
     }
-    
-    wgpuRenderPipelineRelease(copyRenderPipeline);
-    wgpuShaderModuleRelease(copyVertexShader);
-    wgpuShaderModuleRelease(copyFragmentShader);
-    wgpuSamplerRelease(sampler);
+}
+
+bool Capture::IsValid() const {
+    return valid;
 }
 
 void Capture::DebugOutput(string text) {

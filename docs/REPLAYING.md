@@ -25,7 +25,15 @@ You can use `--vulkan`, `--d3d11`, `--d3d12` or `--metal` to request a specific 
 ## Android
 WebGPUReconstruct provides two native replayer apks, one for each backend. Install your preferred backend using `adb install apk_name.apk`. Since both apks use the same application ID, you can't have both backends installed at the same time.
 
-The Android replayer is rather barebones and doesn't allow any configuration. It will always replay the capture file located in: `/sdcard/Android/data/net.chainsawkitten.webgpunativereplay/files/capture.wgpur`. So move your capture file to that location and rename it before starting the replayer. I would like to have something more user-friendly in the future.
+To replay a capture, from an `adb shell`, run:
+
+```
+am start -n net.chainsawkitten.webgpunativereplay/.MainActivity --es args "<COMMAND LINE ARGUMENTS HERE>"
+```
+
+Due to scoped storage limitations, the capture file has to be located in `/sdcard/Android/data/net.chainsawkitten.webgpunativereplay/files/`. Paths must not contain spaces.
+
+`--width`, `--height` and `--fullscreen` arguments are ignored on Android.
 
 ## Replaying on a different device
 WebGPUReconstruct captures are designed to be relatively portable. This means you can replay a capture on a different device than the device it was captured on, even if the device eg. has a different preferred canvas/swapchain format. However, this assumes that the device supports all the features/limits the capture uses. You can't replay a capture that uses features your device doesn't support.
