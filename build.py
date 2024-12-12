@@ -69,6 +69,11 @@ def build_replay_android(configuration):
     
     buildType = "assemble" + ("Debug" if configuration["debug"] else "Release")
     
+    gradlew = "gradlew"
+    if platform.system() == "Linux":
+        gradlew = "./gradlew"
+        run("/build/replay/AndroidDawn", ["chmod", "+x", "./gradlew"])
+    
     if configuration["dawn"]:
         print("Compiling WebGPUNativeReplay (Dawn)")
         shutil.copytree("replay/Android", "build/replay/AndroidDawn", dirs_exist_ok=True)
@@ -80,7 +85,7 @@ def build_replay_android(configuration):
         replace_string_in_file("build/replay/AndroidDawn/app/build.gradle", "$BUILD_WITH_DAWN", "ON")
         replace_string_in_file("build/replay/AndroidDawn/app/build.gradle", "$BUILD_WITH_WGPU", "OFF")
         
-        run("/build/replay/AndroidDawn", ["gradlew", buildType, "-x", "lint"], True)
+        run("/build/replay/AndroidDawn", [gradlew, buildType, "-x", "lint"], True)
     
     if configuration["wgpu"]:
         print("Compiling WebGPUNativeReplay (wgpu)")
@@ -93,7 +98,7 @@ def build_replay_android(configuration):
         replace_string_in_file("build/replay/AndroidWgpu/app/build.gradle", "$BUILD_WITH_DAWN", "OFF")
         replace_string_in_file("build/replay/AndroidWgpu/app/build.gradle", "$BUILD_WITH_WGPU", "ON")
         
-        run("/build/replay/AndroidWgpu", ["gradlew", buildType, "-x", "lint"], True)
+        run("/build/replay/AndroidWgpu", [gradlew, buildType, "-x", "lint"], True)
 
 def build_replay(configuration):
     if configuration["host"] or configuration["android"]:
