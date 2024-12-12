@@ -22,7 +22,7 @@ class Capture {
         END_OF_CAPTURE
     };
     
-    Capture(std::string_view filename, Adapter& adapter, Device& device, SwapChain& swapChain);
+    Capture(std::string_view filename, Adapter& adapter, Device& device, SwapChain& swapChain, bool offscreen);
     ~Capture();
 
     bool IsValid() const;
@@ -32,6 +32,7 @@ class Capture {
     Adapter& adapter;
     Device& device;
     SwapChain& swapChain;
+    bool offscreen;
 
     Uint8Reader reader;
     

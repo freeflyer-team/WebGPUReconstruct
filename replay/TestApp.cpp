@@ -13,7 +13,8 @@ namespace WebGPUNativeReplay {
 TestApp::TestApp(const Window& window, const Configuration& configuration) :
     adapter(window, configuration.backendType),
     device(adapter),
-    swapChain(adapter, device, window, configuration.width, configuration.height, configuration.mailbox)
+    swapChain(adapter, device, window, configuration.width, configuration.height, configuration.mailbox),
+    offscreen(configuration.offscreen)
 {
 
 }
@@ -23,7 +24,7 @@ TestApp::~TestApp() {
 }
 
 void TestApp::RunCapture(string_view filename, std::function<bool(void)> frameCallback) {
-    Capture capture(filename, adapter, device, swapChain);
+    Capture capture(filename, adapter, device, swapChain, offscreen);
     if (!capture.IsValid()) {
         return;
     }

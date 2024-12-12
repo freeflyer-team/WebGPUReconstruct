@@ -22,6 +22,7 @@ class TestApp {
     Adapter adapter;
     Device device;
     SwapChain swapChain;
+    bool offscreen = false;
 
     TestApp(const TestApp&) = delete;
     TestApp& operator=(const TestApp&) = delete;

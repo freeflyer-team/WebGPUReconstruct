@@ -21,6 +21,7 @@ class Configuration {
     bool showHelp = false;
     bool showVersion = false;
     bool mailbox = false;
+    bool offscreen = false;
     WGPUBackendType backendType = WGPUBackendType_Undefined;
 };
 

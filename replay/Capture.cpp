@@ -25,7 +25,9 @@ static_assert(WGPU_MIP_LEVEL_COUNT_UNDEFINED == UINT32_MAX);
 // Generated functions to convert enum values will be inserted here.
 $ENUM_CONVERSIONS
 
-Capture::Capture(string_view filename, Adapter& adapter, Device& device, SwapChain& swapChain) : reader(filename), adapter(adapter), device(device), swapChain(swapChain) {
+Capture::Capture(string_view filename, Adapter& adapter, Device& device, SwapChain& swapChain, bool offscreen) : reader(filename), adapter(adapter), device(device), swapChain(swapChain) {
+    this->offscreen = offscreen;
+
     const uint32_t version = reader.ReadUint32();
     if (version != FILE_VERSION) {
         Logging::Error("The capture file was saved using a different version of WebGPUReconstruct.\n");
@@ -179,7 +181,7 @@ Capture::Status Capture::RunNextCommand() {
         
         DebugOutput("End of frame\n");
         
-        if (canvasTextures.empty()) {
+        if (canvasTextures.empty() || offscreen) {
             return Status::FRAME_END;
         }
         

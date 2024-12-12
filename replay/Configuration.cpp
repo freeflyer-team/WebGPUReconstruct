@@ -39,6 +39,8 @@ Configuration::Configuration(const std::vector<std::string>& arguments) {
             backendType = WGPUBackendType_Metal;
         } else if (argument == "--mailbox") {
             mailbox = true;
+        } else if (argument == "--offscreen") {
+            offscreen = true;
         } else {
             filename = argument;
         }
@@ -62,6 +64,7 @@ void Configuration::ShowHelp() {
     Logging::Info("  --d3d12         Request Direct3D 12 backend.\n");
     Logging::Info("  --metal         Request Metal backend.\n");
     Logging::Info("  --mailbox       Use mailbox present mode (turn off VSync).\n");
+    Logging::Info("  --offscreen     Don't present anything to the screen.\n");
 }
 
 }
