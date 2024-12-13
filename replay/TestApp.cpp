@@ -31,6 +31,8 @@ void TestApp::RunCapture(string_view filename, std::function<bool(void)> frameCa
 
     const chrono::high_resolution_clock::time_point start = chrono::high_resolution_clock::now();
 
+    uint32_t frameCount = 0;
+    bool started = false;
     bool finished = false;
     bool prematureQuit = false;
     while (!finished) {
@@ -39,10 +41,16 @@ void TestApp::RunCapture(string_view filename, std::function<bool(void)> frameCa
         case Capture::Status::END_OF_CAPTURE:
             finished = true;
             break;
+        case Capture::Status::FRAME_START:
+            started = true;
+            break;
         case Capture::Status::FRAME_END:
             if (!frameCallback()) {
                 finished = true;
                 prematureQuit = true;
+            }
+            if (started) {
+                frameCount++;
             }
             break;
         default:
@@ -53,7 +61,7 @@ void TestApp::RunCapture(string_view filename, std::function<bool(void)> frameCa
     if (!prematureQuit) {
         const chrono::high_resolution_clock::time_point end = chrono::high_resolution_clock::now();
         const chrono::duration<double> duration = chrono::duration_cast<chrono::duration<double>>(end - start);
-        Logging::Info("Ran capture in " + to_string(duration.count()) + " seconds.\n");
+        Logging::Info("Ran " + to_string(frameCount) + " frames in " + to_string(duration.count()) + " seconds.\n");
     }
 }
 
