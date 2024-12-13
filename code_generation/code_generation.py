@@ -1,6 +1,6 @@
 import shutil
 
-version = (0, 1)
+version = (0, 2)
 # Increment the file version whenever a change is introduced.
 fileVersion = 4
 
