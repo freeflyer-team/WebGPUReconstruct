@@ -81,10 +81,8 @@ void HandleCmd(android_app* app, int32_t cmd) {
             if (!terminated) {
                 window.window = app->window;
 
-                int width = ANativeWindow_getWidth(window.window);
-                int height = ANativeWindow_getWidth(window.window);
-                configuration->width = width;
-                configuration->height = height;
+                configuration->width = ANativeWindow_getWidth(window.window);
+                configuration->height = ANativeWindow_getHeight(window.window);
                 WebGPUNativeReplay::Logging::Info("Filename: " + configuration->filename);
 
                 started = true;
