@@ -27,16 +27,25 @@ class CustomType:
         return self.cleanupCode.replace('$name', name)
 
 GPUColor = CustomType("""
-if ($name instanceof Array) {
-__WebGPUReconstruct_file.writeFloat64($name[0]);
-__WebGPUReconstruct_file.writeFloat64($name[1]);
-__WebGPUReconstruct_file.writeFloat64($name[2]);
-__WebGPUReconstruct_file.writeFloat64($name[3]);
-} else {
+if ($name.r != undefined) {
 __WebGPUReconstruct_file.writeFloat64($name.r);
+} else {
+__WebGPUReconstruct_file.writeFloat64($name[0]);
+}
+if ($name.g != undefined) {
 __WebGPUReconstruct_file.writeFloat64($name.g);
+} else {
+__WebGPUReconstruct_file.writeFloat64($name[1]);
+}
+if ($name.b != undefined) {
 __WebGPUReconstruct_file.writeFloat64($name.b);
+} else {
+__WebGPUReconstruct_file.writeFloat64($name[2]);
+}
+if ($name.a != undefined) {
 __WebGPUReconstruct_file.writeFloat64($name.a);
+} else {
+__WebGPUReconstruct_file.writeFloat64($name[3]);
 }""", """
 $name.r = reader.ReadFloat64();
 $name.g = reader.ReadFloat64();
