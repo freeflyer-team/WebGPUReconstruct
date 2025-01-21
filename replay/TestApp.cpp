@@ -3,6 +3,8 @@
 #include "../build/replay/Capture.hpp"
 #include <chrono>
 #include <string>
+#include <fstream>
+#include <sstream>
 #include "Configuration.hpp"
 #include "Logging.hpp"
 
@@ -14,7 +16,8 @@ TestApp::TestApp(const Window& window, const Configuration& configuration) :
     adapter(window, configuration.backendType),
     device(adapter),
     swapChain(adapter, device, window, configuration.width, configuration.height, configuration.mailbox),
-    offscreen(configuration.offscreen)
+    offscreen(configuration.offscreen),
+    statsFile(configuration.statsFile)
 {
 
 }
@@ -61,7 +64,18 @@ void TestApp::RunCapture(string_view filename, std::function<bool(void)> frameCa
     if (!prematureQuit) {
         const chrono::high_resolution_clock::time_point end = chrono::high_resolution_clock::now();
         const chrono::duration<double> duration = chrono::duration_cast<chrono::duration<double>>(end - start);
-        Logging::Info("Ran " + to_string(frameCount) + " frames in " + to_string(duration.count()) + " seconds.\n");
+
+        stringstream stats;
+        stats << "Ran " << frameCount << " frames in " << duration.count() << " seconds.\n";
+
+        Logging::Info(stats.str());
+
+        if (!statsFile.empty()) {
+            ofstream file;
+            file.open(statsFile);
+            file << stats.str();
+            file.close();
+        }
     }
 }
 

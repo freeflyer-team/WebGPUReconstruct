@@ -18,6 +18,7 @@ class Configuration {
     int width = 640;
     int height = 480;
     std::string filename = "";
+    std::string statsFile = "";
     bool showHelp = false;
     bool showVersion = false;
     bool mailbox = false;

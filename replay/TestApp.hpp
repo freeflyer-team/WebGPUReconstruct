@@ -3,6 +3,7 @@
 #include "Adapter.hpp"
 #include "Device.hpp"
 #include "SwapChain.hpp"
+#include <string>
 #include <string_view>
 #include <functional>
 
@@ -23,6 +24,7 @@ class TestApp {
     Device device;
     SwapChain swapChain;
     bool offscreen = false;
+    std::string statsFile;
 
     TestApp(const TestApp&) = delete;
     TestApp& operator=(const TestApp&) = delete;

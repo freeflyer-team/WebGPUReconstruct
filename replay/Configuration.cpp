@@ -23,6 +23,11 @@ Configuration::Configuration(const std::vector<std::string>& arguments) {
                 height = atoi(arguments[i + 1].c_str());
                 ++i;
             }
+        } else if (argument == "--stats-file") {
+            if (i + 1 < arguments.size()) {
+                statsFile = arguments[i + 1];
+                ++i;
+            }
         } else if (argument == "--help") {
             showHelp = true;
         } else if (argument == "--version") {
@@ -54,17 +59,18 @@ void Configuration::ShowVersion() {
 
 void Configuration::ShowHelp() {
     Logging::Info("WebGPUNativeReplay [options] filename.wgpur\n");
-    Logging::Info("  --help          Show this help screen.\n");
-    Logging::Info("  --version       Show version information.\n");
-    Logging::Info("  --width  WIDTH  Specify the width of the window.\n");
-    Logging::Info("  --height HEIGHT Specify the height of the window.\n");
-    Logging::Info("  --fullscreen    Run capture in fullscreen mode.\n");
-    Logging::Info("  --vulkan        Request Vulkan backend.\n");
-    Logging::Info("  --d3d11         Request Direct3D 11 backend.\n");
-    Logging::Info("  --d3d12         Request Direct3D 12 backend.\n");
-    Logging::Info("  --metal         Request Metal backend.\n");
-    Logging::Info("  --mailbox       Use mailbox present mode (turn off VSync).\n");
-    Logging::Info("  --offscreen     Don't present anything to the screen.\n");
+    Logging::Info("  --help            Show this help screen.\n");
+    Logging::Info("  --version         Show version information.\n");
+    Logging::Info("  --width  WIDTH    Specify the width of the window.\n");
+    Logging::Info("  --height HEIGHT   Specify the height of the window.\n");
+    Logging::Info("  --fullscreen      Run capture in fullscreen mode.\n");
+    Logging::Info("  --vulkan          Request Vulkan backend.\n");
+    Logging::Info("  --d3d11           Request Direct3D 11 backend.\n");
+    Logging::Info("  --d3d12           Request Direct3D 12 backend.\n");
+    Logging::Info("  --metal           Request Metal backend.\n");
+    Logging::Info("  --mailbox         Use mailbox present mode (turn off VSync).\n");
+    Logging::Info("  --offscreen       Don't present anything to the screen.\n");
+    Logging::Info("  --stats-file FILE Write statistics to a file.");
 }
 
 }
