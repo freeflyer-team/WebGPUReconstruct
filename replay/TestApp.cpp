@@ -35,6 +35,8 @@ void TestApp::RunCapture(string_view filename, std::function<bool(void)> frameCa
     const chrono::high_resolution_clock::time_point start = chrono::high_resolution_clock::now();
 
     uint32_t frameCount = 0;
+    uint32_t emptyFrames = 0;
+    bool empty = true;
     bool started = false;
     bool finished = false;
     bool prematureQuit = false;
@@ -46,6 +48,7 @@ void TestApp::RunCapture(string_view filename, std::function<bool(void)> frameCa
             break;
         case Capture::Status::FRAME_START:
             started = true;
+            empty = true;
             break;
         case Capture::Status::FRAME_END:
             if (!frameCallback()) {
@@ -54,9 +57,13 @@ void TestApp::RunCapture(string_view filename, std::function<bool(void)> frameCa
             }
             if (started) {
                 frameCount++;
+                if (empty) {
+                    emptyFrames++;
+                }
             }
             break;
         default:
+            empty = false;
             break;
         }
     }
@@ -67,6 +74,7 @@ void TestApp::RunCapture(string_view filename, std::function<bool(void)> frameCa
 
         stringstream stats;
         stats << "Ran " << frameCount << " frames in " << duration.count() << " seconds.\n";
+        stats << "Of which " << emptyFrames << " frames where empty (contained no commands).\n";
 
         Logging::Info(stats.str());
 
