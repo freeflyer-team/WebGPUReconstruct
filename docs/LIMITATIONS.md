@@ -12,6 +12,7 @@ The following optional WebGPU features are not supported:
 - `float32-blendable`
 - `clip-distances`
 - `dual-source-blending`
+- `subgroups`
 
 During capture, `GPUAdapter` will behave as if these features are not supported, even if the device supports them.
 

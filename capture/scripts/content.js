@@ -374,7 +374,7 @@ function __WebGPUReconstruct_get_bytes_per_block(format) {
 }
 
 // Features supported by WebGPUReconstruct. We will pretend the adapter doesn't support any other features.
-// TODO: depth-clip-control, float32-blendable, clip-distances, dual-source-blending
+// TODO: depth-clip-control, float32-blendable, clip-distances, dual-source-blending, subgroups
 var __WebGPUReconstruct_supportedFeatures = new Set([
     "depth32float-stencil8",
     "texture-compression-bc",
