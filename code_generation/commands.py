@@ -304,6 +304,7 @@ if (texture.width != width || texture.height != height) {
     texture.height = height;
 }
 mapGPUTexture[id] = texture.texture;
+AddCanvasSize(texture.width, texture.height);
 """)
 
 add_custom_command(GPUDevice, "createShaderModule", ["descriptor"], """

@@ -28,6 +28,19 @@ class Capture {
     bool IsValid() const;
     Status RunNextCommand();
 
+    struct CanvasSize {
+        enum class State {
+            NONE,
+            SINGLE,
+            MULTIPLE
+        };
+        State state = State::NONE;
+        uint32_t width;
+        uint32_t height;
+    };
+
+    const CanvasSize& GetCanvasSize() const;
+
   private:
     Adapter& adapter;
     Device& device;
@@ -49,6 +62,7 @@ $MAPS
         WGPUTextureFormat* viewFormats = nullptr;
     };
     std::map<uint32_t, CanvasTexture> canvasTextures;
+    CanvasSize canvasSize;
 
     bool valid = true;
     bool hasBegun = false;
@@ -59,6 +73,8 @@ $MAPS
     
     void DebugOutput(std::string text);
     void ErrorOutput(std::string text);
+    
+    void AddCanvasSize(uint32_t width, uint32_t height);
     
     template <class T>
     T GetIdType(std::unordered_map<uint32_t, T>& m, uint32_t id) {

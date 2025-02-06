@@ -74,7 +74,22 @@ void TestApp::RunCapture(string_view filename, std::function<bool(void)> frameCa
 
         stringstream stats;
         stats << "Ran " << frameCount << " frames in " << duration.count() << " seconds.\n";
-        stats << "Of which " << emptyFrames << " frames where empty (contained no commands).\n";
+        stats << "Of which " << emptyFrames << " frames were empty (contained no commands).\n";
+
+        stats << "Canvas: ";
+        Capture::CanvasSize canvasSize = capture.GetCanvasSize();
+        switch (canvasSize.state) {
+        case Capture::CanvasSize::State::NONE:
+            stats << "None";
+            break;
+        case Capture::CanvasSize::State::SINGLE:
+            stats << canvasSize.width << " x " << canvasSize.height;
+            break;
+        case Capture::CanvasSize::State::MULTIPLE:
+            stats << "Multiple sizes";
+            break;
+        }
+        stats << "\n";
 
         Logging::Info(stats.str());
 

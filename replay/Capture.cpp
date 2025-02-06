@@ -306,4 +306,25 @@ $RUN_COMMANDS
     return Status::COMMAND;
 }
 
+const Capture::CanvasSize& Capture::GetCanvasSize() const {
+    return canvasSize;
+}
+
+void Capture::AddCanvasSize(uint32_t width, uint32_t height) {
+    switch (canvasSize.state) {
+    case CanvasSize::State::NONE:
+        canvasSize.state = CanvasSize::State::SINGLE;
+        canvasSize.width = width;
+        canvasSize.height = height;
+        break;
+    case CanvasSize::State::SINGLE:
+        if (width != canvasSize.width || height != canvasSize.height) {
+            canvasSize.state = CanvasSize::State::MULTIPLE;
+        }
+        break;
+    case CanvasSize::State::MULTIPLE:
+        break;
+    }
+}
+
 }
