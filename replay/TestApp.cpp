@@ -1,6 +1,7 @@
 #include "TestApp.hpp"
 
 #include "../build/replay/Capture.hpp"
+#include "../build/replay/Constants.hpp"
 #include <chrono>
 #include <string>
 #include <fstream>
@@ -90,6 +91,8 @@ void TestApp::RunCapture(string_view filename, std::function<bool(void)> frameCa
             break;
         }
         stats << "\n";
+
+        stats << "Replayer version " << VERSION_MAJOR << "." << VERSION_MINOR << "\n";
 
         Logging::Info(stats.str());
 
