@@ -74,7 +74,7 @@ void TestApp::RunCapture(string_view filename, std::function<bool(void)> frameCa
         const chrono::duration<double> duration = chrono::duration_cast<chrono::duration<double>>(end - start);
 
         stringstream stats;
-        stats << "Ran " << frameCount << " frames in " << duration.count() << " seconds.\n";
+        stats << "Ran " << frameCount << " frames in " << duration.count() << " seconds (" << (static_cast<double>(frameCount) / duration.count()) << " FPS).\n";
         stats << "Of which " << emptyFrames << " frames were empty (contained no commands).\n";
 
         stats << "Canvas: ";
