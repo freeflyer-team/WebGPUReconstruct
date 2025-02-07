@@ -103,7 +103,7 @@ def build_replay_android(configuration):
 def build_replay(configuration):
     if configuration["host"] or configuration["android"]:
         Path("build/replay").mkdir(parents=True, exist_ok=True)
-        write_replay_files()
+        write_replay_files(rootDir, configuration)
     
     if configuration["host"]:
         build_replay_host(configuration)

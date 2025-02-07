@@ -2,6 +2,7 @@
 
 #include <cstring>
 #include <cstdlib>
+#include <sstream>
 #include "Logging.hpp"
 #include "../build/replay/Constants.hpp"
 
@@ -55,6 +56,7 @@ Configuration::Configuration(const std::vector<std::string>& arguments) {
 void Configuration::ShowVersion() {
     Logging::Info("WebGPUNativeReplay version: " + std::to_string(VERSION_MAJOR) + "." + std::to_string(VERSION_MINOR) + "\n");
     Logging::Info("Capture file format version: " + std::to_string(FILE_VERSION) + "\n");
+    Logging::Info(GetImplementationVersion() + "\n");
 }
 
 void Configuration::ShowHelp() {
@@ -71,6 +73,18 @@ void Configuration::ShowHelp() {
     Logging::Info("  --mailbox         Use mailbox present mode (turn off VSync).\n");
     Logging::Info("  --offscreen       Don't present anything to the screen.\n");
     Logging::Info("  --stats-file FILE Write statistics to a file.");
+}
+
+std::string Configuration::GetImplementationVersion() {
+    std::stringstream versionString;
+
+#if WEBGPU_BACKEND_DAWN
+    versionString << "Dawn version " << DAWN_BRANCH << " (" << DAWN_COMMIT << ")";
+#else
+    versionString << "wgpu-native version " << WGPU_TAG << " (" << WGPU_COMMIT << ")";
+#endif
+
+    return versionString.str();
 }
 
 }

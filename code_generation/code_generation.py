@@ -1,4 +1,6 @@
 import shutil
+import os
+import subprocess
 
 version = (0, 2)
 # Increment the file version whenever a change is introduced.
@@ -64,7 +66,18 @@ def write_capture_files(configuration, browser):
     
     shutil.make_archive("build/capture/" + browser, 'zip', "build/capture/" + browser)
 
-def write_replay_files():
+def run_query(rootDir, workingDirectory, arguments):
+    os.chdir(rootDir + workingDirectory)
+    result = subprocess.run(arguments, shell = False, capture_output = True, text = True)
+    os.chdir(rootDir)
+    
+    if result.returncode != 0:
+        print("Failed")
+        exit(1)
+    
+    return result.stdout.strip("\n")
+
+def write_replay_files(rootDir, configuration):
     shutil.copyfile("replay/Capture.cpp", "build/replay/Capture.cpp")
     shutil.copyfile("replay/Capture.hpp", "build/replay/Capture.hpp")
     shutil.copyfile("replay/Constants.hpp", "build/replay/Constants.hpp")
@@ -75,3 +88,18 @@ def write_replay_files():
     replace_string_in_file("build/replay/Constants.hpp", "$VERSION_MAJOR", str(version[0]))
     replace_string_in_file("build/replay/Constants.hpp", "$VERSION_MINOR", str(version[1]))
     replace_string_in_file("build/replay/Constants.hpp", "$FILE_VERSION", str(fileVersion))
+    
+    if configuration["dawn"]:
+        replace_string_in_file("build/replay/Constants.hpp", "$DAWN_BRANCH", '"' + run_query(rootDir, "/replay/dawn", ["git",  "branch", "--show-current"]) + '"')
+        replace_string_in_file("build/replay/Constants.hpp", "$DAWN_COMMIT", '"' + run_query(rootDir, "/replay/dawn", ["git",  "rev-parse", "--short", "HEAD"]) + '"')
+    else:
+        replace_string_in_file("build/replay/Constants.hpp", "$DAWN_BRANCH", '""')
+        replace_string_in_file("build/replay/Constants.hpp", "$DAWN_COMMIT", '""')
+    
+    if configuration["wgpu"]:
+        replace_string_in_file("build/replay/Constants.hpp", "$WGPU_TAG", '"' + run_query(rootDir, "/replay/wgpu-native", ["git", "describe", "--tags", "--abbrev=0"]) + '"')
+        replace_string_in_file("build/replay/Constants.hpp", "$WGPU_COMMIT", '"' + run_query(rootDir, "/replay/wgpu-native", ["git",  "rev-parse", "--short", "HEAD"]) + '"')
+    else:
+        replace_string_in_file("build/replay/Constants.hpp", "$WGPU_TAG", '""')
+        replace_string_in_file("build/replay/Constants.hpp", "$WGPU_COMMIT", '""')
+    

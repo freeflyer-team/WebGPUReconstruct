@@ -13,6 +13,7 @@ class Configuration {
 
     static void ShowVersion();
     static void ShowHelp();
+    static std::string GetImplementationVersion();
 
     bool fullscreen = false;
     int width = 640;

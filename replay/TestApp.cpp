@@ -93,6 +93,7 @@ void TestApp::RunCapture(string_view filename, std::function<bool(void)> frameCa
         stats << "\n";
 
         stats << "Replayer version " << VERSION_MAJOR << "." << VERSION_MINOR << "\n";
+        stats << Configuration::GetImplementationVersion() << "\n";
 
         Logging::Info(stats.str());
 
