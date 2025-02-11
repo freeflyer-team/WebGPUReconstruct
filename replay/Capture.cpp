@@ -6,6 +6,7 @@
 #include "../../replay/SwapChain.hpp"
 #include "Constants.hpp"
 #include <algorithm>
+#include <atomic>
 #include <cassert>
 #include <climits>
 #include <cmath>
@@ -166,8 +167,21 @@ Capture::Status Capture::RunNextCommand() {
 
     switch (commandCode) {
     case 0:
+    {
+        // Wait for GPU work to finish.
+        std::atomic<bool> done = false;
+        wgpuQueueOnSubmittedWorkDone(device.GetQueue(), [](WGPUQueueWorkDoneStatus status, WGPU_NULLABLE void * userdata){
+            *static_cast<std::atomic<bool>*>(userdata) = true;
+        }, &done);
+        while (!done) {
+            wgpuDeviceTick(device.GetDevice());
+            this_thread::yield();
+        }
+
         DebugOutput("End of capture reached.\n");
+
         return Status::END_OF_CAPTURE;
+    }
     case 1:
         DebugOutput("Start of frame.\n");
         hasBegun = true;
