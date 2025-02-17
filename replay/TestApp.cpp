@@ -4,6 +4,7 @@
 #include "../build/replay/Constants.hpp"
 #include <chrono>
 #include <string>
+#include <iomanip>
 #include <fstream>
 #include <sstream>
 #include "Configuration.hpp"
@@ -34,6 +35,7 @@ void TestApp::RunCapture(string_view filename, std::function<bool(void)> frameCa
     }
 
     const chrono::high_resolution_clock::time_point start = chrono::high_resolution_clock::now();
+    const chrono::system_clock::time_point startUnix = chrono::system_clock::now();
 
     uint32_t frameCount = 0;
     uint32_t emptyFrames = 0;
@@ -71,11 +73,18 @@ void TestApp::RunCapture(string_view filename, std::function<bool(void)> frameCa
 
     if (!prematureQuit) {
         const chrono::high_resolution_clock::time_point end = chrono::high_resolution_clock::now();
+        const chrono::system_clock::time_point endUnix = chrono::system_clock::now();
+
         const chrono::duration<double> duration = chrono::duration_cast<chrono::duration<double>>(end - start);
+        const auto startUnixTimestamp = chrono::duration_cast<chrono::milliseconds>(startUnix.time_since_epoch());
+        const auto endUnixTimestamp = chrono::duration_cast<chrono::milliseconds>(endUnix.time_since_epoch());
 
         stringstream stats;
         stats << "Ran " << frameCount << " frames in " << duration.count() << " seconds (" << (static_cast<double>(frameCount) / duration.count()) << " FPS).\n";
         stats << "Of which " << emptyFrames << " frames were empty (contained no commands).\n";
+        stats << setprecision(4) << fixed;
+        stats << "Start UNIX timestamp: " << startUnixTimestamp.count() / 1000.0 << "\n";
+        stats << "End UNIX timestamp: " << endUnixTimestamp.count() / 1000.0 << "\n";
 
         stats << "Canvas: ";
         Capture::CanvasSize canvasSize = capture.GetCanvasSize();
