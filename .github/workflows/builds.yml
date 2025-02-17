@@ -10,7 +10,7 @@ jobs:
         include:
           - platform: windows
             backend: dawn
-            os: windows-latest
+            os: windows-2025
 
           - platform: windows
             backend: wgpu
