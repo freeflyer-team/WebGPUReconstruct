@@ -45,12 +45,12 @@ Device::Device(Adapter& adapter) {
     deviceDescriptor.requiredLimits = &requiredLimits;
 
 #if WEBGPU_BACKEND_DAWN
-    deviceDescriptor.deviceLostCallbackInfo.mode = WGPUCallbackMode_WaitAnyOnly;
-    deviceDescriptor.deviceLostCallbackInfo.callback = [](const WGPUDevice* device, WGPUDeviceLostReason reason, WGPUStringView message, void* userdata) {
+    deviceDescriptor.deviceLostCallbackInfo2.mode = WGPUCallbackMode_WaitAnyOnly;
+    deviceDescriptor.deviceLostCallbackInfo2.callback = [](const WGPUDevice* device, WGPUDeviceLostReason reason, WGPUStringView message, void* userdata1, void* userdata2) {
         Logging::Error("Device lost " + std::to_string(reason) + ": " + std::string(std::string_view(message.data, message.length)) + "\n");
     };
 
-    deviceDescriptor.uncapturedErrorCallbackInfo.callback = [](WGPUErrorType type, WGPUStringView message, void* userData) {
+    deviceDescriptor.uncapturedErrorCallbackInfo2.callback = [](const WGPUDevice* device, WGPUErrorType type, WGPUStringView message, void* userdata1, void* userdata2) {
         Logging::Error("Uncaptured device error " + std::to_string(type) + ": " + std::string(std::string_view(message.data, message.length)) + "\n");
     };
 #else
