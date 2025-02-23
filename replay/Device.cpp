@@ -37,7 +37,11 @@ Device::Device(Adapter& adapter) {
     wgpuAdapterGetLimits(adapter.GetAdapter(), &supportedLimits);
 
     WGPURequiredLimits requiredLimits = {};
+#if WEBGPU_BACKEND_DAWN
     requiredLimits.limits = supportedLimits.limits;
+#else
+    requiredLimits = supportedLimits;
+#endif
 
     WGPUDeviceDescriptor deviceDescriptor = {};
     deviceDescriptor.requiredFeatureCount = features.size();
@@ -54,12 +58,13 @@ Device::Device(Adapter& adapter) {
         Logging::Error("Uncaptured device error " + std::to_string(type) + ": " + std::string(std::string_view(message.data, message.length)) + "\n");
     };
 #else
-    deviceDescriptor.deviceLostCallback = [](WGPUDeviceLostReason reason, char const* message, void* userdata) {
-        Logging::Error("Device lost " + std::to_string(reason) + ": " + std::string(message) + "\n");
+    deviceDescriptor.deviceLostCallbackInfo.mode = WGPUCallbackMode_WaitAnyOnly;
+    deviceDescriptor.deviceLostCallbackInfo.callback = [](const WGPUDevice* device, WGPUDeviceLostReason reason, WGPUStringView message, void* userdata1, void* userdata2) {
+        Logging::Error("Device lost " + std::to_string(reason) + ": " + std::string(std::string_view(message.data, message.length)) + "\n");
     };
 
-    deviceDescriptor.uncapturedErrorCallbackInfo.callback = [](WGPUErrorType type, char const* message, void* userData) {
-        Logging::Error("Uncaptured device error " + std::to_string(type) + ": " + std::string(message) + "\n");
+    deviceDescriptor.uncapturedErrorCallbackInfo.callback = [](const WGPUDevice* device, WGPUErrorType type, WGPUStringView message, void* userdata1, void* userdata2) {
+        Logging::Error("Uncaptured device error " + std::to_string(type) + ": " + std::string(std::string_view(message.data, message.length)) + "\n");
     };
 #endif
 
@@ -83,21 +88,16 @@ Device::Device(Adapter& adapter) {
     };
     UserData userData;
 
-#if WEBGPU_BACKEND_DAWN
-    wgpuAdapterRequestDevice(
-        adapter.GetAdapter(), &deviceDescriptor, [](WGPURequestDeviceStatus status, WGPUDevice device, WGPUStringView message, void* userdata) {
-            UserData* userData = reinterpret_cast<UserData*>(userdata);
-            userData->device = device;
-            userData->finished = true;
-        }, &userData);
-#else
-    wgpuAdapterRequestDevice(
-        adapter.GetAdapter(), &deviceDescriptor, [](WGPURequestDeviceStatus status, WGPUDevice device, char const* message, void* userdata) {
-            UserData* userData = reinterpret_cast<UserData*>(userdata);
-            userData->device = device;
-            userData->finished = true;
-        }, & userData);
-#endif
+    WGPURequestDeviceCallbackInfo2 callbackInfo = {};
+    callbackInfo.mode = WGPUCallbackMode_AllowSpontaneous;
+    callbackInfo.callback = [](WGPURequestDeviceStatus status, WGPUDevice device, WGPUStringView message, void* userdata1, void* userdata2) {
+        UserData* userData = reinterpret_cast<UserData*>(userdata1);
+        userData->device = device;
+        userData->finished = true;
+    };
+    callbackInfo.userdata1 = &userData;
+
+    wgpuAdapterRequestDevice2(adapter.GetAdapter(), &deviceDescriptor, callbackInfo);
 
     // Wait for request to finish.
     while (!userData.finished) {

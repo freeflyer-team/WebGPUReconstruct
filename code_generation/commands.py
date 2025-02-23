@@ -334,12 +334,8 @@ DebugOutput("\\n");
 
 WGPUShaderSourceWGSL wgsl = {};
 wgsl.chain.sType = WGPUSType_ShaderSourceWGSL;
-#if WEBGPU_BACKEND_DAWN
 wgsl.code.data = code;
 wgsl.code.length = codeLength;
-#else
-wgsl.code = code;
-#endif
 
 WGPUShaderModuleDescriptor descriptor = {};
 descriptor.nextInChain = reinterpret_cast<const WGPUChainedStruct*>(&wgsl);
@@ -407,7 +403,10 @@ WGPUBuffer buffer = GetIdType(mapGPUBuffer, reader.ReadUint32());
 const uint32_t mode = reader.ReadUint32();
 const uint64_t offset = reader.ReadUint64();
 const uint64_t size = reader.ReadUint64();
-wgpuBufferMapAsync(buffer, mode, offset, size, [](WGPUBufferMapAsyncStatus, void*){}, nullptr);
+WGPUBufferMapCallbackInfo2 callbackInfo = {};
+callbackInfo.mode = WGPUCallbackMode_AllowSpontaneous;
+callbackInfo.callback = [](WGPUMapAsyncStatus status, WGPUStringView message, void* userdata1, void* userdata2){};
+wgpuBufferMapAsync2(buffer, mode, offset, size, callbackInfo);
 """)
 
 add_custom_command(GPUBuffer, "getMappedRange", ["offset", "size"], """

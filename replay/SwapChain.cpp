@@ -23,7 +23,7 @@ SwapChain::SwapChain(Adapter& adapter, Device& device, const Window& window, uin
         exit(EXIT_FAILURE);
     }
 
-    const WGPUTextureUsageFlags requiredUsage = WGPUTextureUsage_RenderAttachment;
+    const WGPUTextureUsage requiredUsage = WGPUTextureUsage_RenderAttachment;
     if ((surfaceCapabilities.usages & requiredUsage) != requiredUsage) {
         Logging::Error("Surface doesn't support the required texture usage.\n");
         exit(EXIT_FAILURE);

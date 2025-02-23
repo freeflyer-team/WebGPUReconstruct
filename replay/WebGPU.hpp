@@ -2,10 +2,6 @@
 
 #if WEBGPU_BACKEND_DAWN
 #include <dawn/webgpu.h>
-
-// TODO Remove once wgpu-native has updated to latest headers.
-typedef WGPUBufferUsage WGPUBufferUsageFlags;
-typedef WGPUTextureUsage WGPUTextureUsageFlags;
 #endif
 
 #if WEBGPU_BACKEND_WGPU
@@ -15,16 +11,18 @@ inline void wgpuDeviceTick(WGPUDevice device) {
     wgpuDevicePoll(device, false, nullptr);
 }
 
-// TODO Remove once wgpu-native has updated to latest headers.
-typedef WGPUSurfaceDescriptorFromAndroidNativeWindow WGPUSurfaceSourceAndroidNativeWindow;
-typedef WGPUSurfaceDescriptorFromWindowsHWND WGPUSurfaceSourceWindowsHWND;
-typedef WGPUSurfaceDescriptorFromXlibWindow WGPUSurfaceSourceXlibWindow;
+typedef WGPULimits WGPUSupportedLimits;
+typedef WGPULimits WGPURequiredLimits;
 
-const WGPUSType WGPUSType_SurfaceSourceAndroidNativeWindow = WGPUSType_SurfaceDescriptorFromAndroidNativeWindow;
-const WGPUSType WGPUSType_SurfaceSourceWindowsHWND = WGPUSType_SurfaceDescriptorFromWindowsHWND;
-const WGPUSType WGPUSType_SurfaceSourceXlibWindow = WGPUSType_SurfaceDescriptorFromXlibWindow;
+typedef WGPURequestAdapterCallbackInfo WGPURequestAdapterCallbackInfo2;
+typedef WGPURequestDeviceCallbackInfo WGPURequestDeviceCallbackInfo2;
+typedef WGPUBufferMapCallbackInfo WGPUBufferMapCallbackInfo2;
 
-typedef WGPUShaderModuleWGSLDescriptor WGPUShaderSourceWGSL;
+#define wgpuInstanceRequestAdapter2 wgpuInstanceRequestAdapter
+#define wgpuAdapterRequestDevice2 wgpuAdapterRequestDevice
+#define wgpuBufferMapAsync2 wgpuBufferMapAsync
 
-const WGPUSType WGPUSType_ShaderSourceWGSL = WGPUSType_ShaderModuleWGSLDescriptor;
+typedef WGPUTexelCopyTextureInfo WGPUImageCopyTexture;
+typedef WGPUTexelCopyBufferInfo WGPUImageCopyBuffer;
+typedef WGPUTexelCopyBufferLayout WGPUTextureDataLayout;
 #endif

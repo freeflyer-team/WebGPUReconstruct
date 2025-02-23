@@ -69,12 +69,8 @@ fn main(
   return output;
 }
 )";
-#if WEBGPU_BACKEND_DAWN
     wgslSource.code.data = vertexShaderCode.c_str();
     wgslSource.code.length = vertexShaderCode.size();
-#else
-    wgslSource.code = vertexShaderCode.c_str();
-#endif
     
     WGPUShaderModuleDescriptor moduleDescriptor = {};
     moduleDescriptor.nextInChain = reinterpret_cast<const WGPUChainedStruct*>(&wgslSource);
@@ -89,12 +85,8 @@ fn main(@location(0) fragUV: vec2f) -> @location(0) vec4f {
   return textureSample(myTexture, mySampler, fragUV);
 }
 )";
-#if WEBGPU_BACKEND_DAWN
     wgslSource.code.data = fragmentShaderCode.c_str();
     wgslSource.code.length = fragmentShaderCode.size();
-#else
-    wgslSource.code = fragmentShaderCode.c_str();
-#endif
     
     copyFragmentShader = wgpuDeviceCreateShaderModule(device.GetDevice(), &moduleDescriptor);
     
@@ -104,23 +96,15 @@ fn main(@location(0) fragUV: vec2f) -> @location(0) vec4f {
     
     WGPUFragmentState fragment = {};
     fragment.module = copyFragmentShader;
-#if WEBGPU_BACKEND_DAWN
     fragment.entryPoint.data = "main";
     fragment.entryPoint.length = 4;
-#else
-    fragment.entryPoint = "main";
-#endif
     fragment.targetCount = 1;
     fragment.targets = &target;
     
     WGPURenderPipelineDescriptor descriptor = {};
     descriptor.vertex.module = copyVertexShader;
-#if WEBGPU_BACKEND_DAWN
     descriptor.vertex.entryPoint.data = "main";
     descriptor.vertex.entryPoint.length = 4;
-#else
-    descriptor.vertex.entryPoint = "main";
-#endif
     descriptor.fragment = &fragment;
     descriptor.primitive.topology = WGPUPrimitiveTopology_TriangleList;
     descriptor.multisample.count = 1;
@@ -170,9 +154,21 @@ Capture::Status Capture::RunNextCommand() {
     {
         // Wait for GPU work to finish.
         std::atomic<bool> done = false;
-        wgpuQueueOnSubmittedWorkDone(device.GetQueue(), [](WGPUQueueWorkDoneStatus status, WGPU_NULLABLE void * userdata){
-            *static_cast<std::atomic<bool>*>(userdata) = true;
-        }, &done);
+        
+#if WEBGPU_BACKEND_DAWN
+        wgpuQueueOnSubmittedWorkDone(device.GetQueue(), [](WGPUQueueWorkDoneStatus status, void* userdata1) {
+            *static_cast<std::atomic<bool>*>(userdata1) = true;
+            }, &done);
+#else
+        WGPUQueueWorkDoneCallbackInfo callbackInfo = {};
+        callbackInfo.mode = WGPUCallbackMode_AllowSpontaneous;
+        callbackInfo.callback = [](WGPUQueueWorkDoneStatus status, void* userdata1, void* userdata2) {
+            *static_cast<std::atomic<bool>*>(userdata1) = true;
+            };
+        callbackInfo.userdata1 = &done;
+        wgpuQueueOnSubmittedWorkDone(device.GetQueue(), callbackInfo);
+#endif
+        
         while (!done) {
             wgpuDeviceTick(device.GetDevice());
             this_thread::yield();

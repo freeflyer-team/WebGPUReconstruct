@@ -80,7 +80,7 @@ if (WEBGPU_NATIVE_REPLAY_WGPU_BACKEND)
 
     # Dependencies
     if(MSVC)
-        set(WGPU_OS_LIBRARIES "userenv" "ws2_32" "Dwmapi" "dbghelp" "d3dcompiler" "D3D12" "D3D11" "DXGI" "setupapi" "Bcrypt" "ntdll" "opengl32")
+        set(WGPU_OS_LIBRARIES "userenv" "ws2_32" "Dwmapi" "dbghelp" "d3dcompiler" "D3D12" "D3D11" "DXGI" "setupapi" "Bcrypt" "ntdll" "opengl32" "Propsys" "RuntimeObject")
     elseif(APPLE)
         set(WGPU_OS_LIBRARIES "-framework Cocoa" "-framework CoreVideo" "-framework IOKit" "-framework QuartzCore")
     endif()

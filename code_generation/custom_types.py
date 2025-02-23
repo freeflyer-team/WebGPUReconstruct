@@ -182,15 +182,9 @@ const_cast<WGPUConstantEntry*>(&$names[keyI])->value = reader.ReadFloat64();
 }
 """, 'assert(false);\n', '$name', """
 for (uint64_t keyI = 0; keyI < $nameCount; ++keyI) {
-#if WEBGPU_BACKEND_DAWN
 if ($names[keyI].key.length > 0) {
 delete[] $names[keyI].key.data;
 }
-#else
-if ($names[keyI].key != nullptr) {
-delete[] $names[keyI].key;
-}
-#endif
 }
 delete[] $names;
 """)
@@ -206,14 +200,10 @@ GPUImageCopyBuffer = CustomType(GPUBuffer.save("$name.buffer") + "\n"
     "WGPUImageCopyBuffer $name;",
     "&$name")
 
-# TODO Remove and use GPUOptionalBool instead once wgpu-native updates to latest headers.
+# TODO Remove and define a GPUOptionalBool type.
 DepthWriteEnabled = CustomType("""
 __WebGPUReconstruct_file.writeUint8($name);
 """,
 """
-#if WEBGPU_BACKEND_DAWN
 $name = reader.ReadUint8() ? WGPUOptionalBool_True : WGPUOptionalBool_False;
-#else
-$name = reader.ReadUint8();
-#endif
 """)

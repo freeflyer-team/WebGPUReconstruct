@@ -75,7 +75,7 @@ void Adapter::CreateSurface(const Window& window) {
     platformSurfaceSource.chain.sType = WGPUSType_SurfaceSourceAndroidNativeWindow;
     platformSurfaceSource.window = window.window;
 #elif defined(_WIN32) || defined(WIN32)
-    WGPUSurfaceDescriptorFromWindowsHWND platformSurfaceSource = {};
+    WGPUSurfaceSourceWindowsHWND platformSurfaceSource = {};
     platformSurfaceSource.chain.next = nullptr;
     platformSurfaceSource.chain.sType = WGPUSType_SurfaceSourceWindowsHWND;
     platformSurfaceSource.hinstance = GetModuleHandle(NULL);
@@ -84,7 +84,7 @@ void Adapter::CreateSurface(const Window& window) {
 #error "WebGPU surface support has not been implemented on Mac."
     /// @todo Implement WGPUSurfaceSourceMetalLayer
 #elif __linux__
-    WGPUSurfaceDescriptorFromXlibWindow platformSurfaceSource = {};
+    WGPUSurfaceSourceXlibWindow platformSurfaceSource = {};
     platformSurfaceSource.chain.next = nullptr;
     platformSurfaceSource.chain.sType = WGPUSType_SurfaceSourceXlibWindow;
     platformSurfaceSource.display = glfwGetX11Display();
@@ -94,10 +94,6 @@ void Adapter::CreateSurface(const Window& window) {
 #endif
 
     WGPUSurfaceDescriptor surfaceDescriptor = {};
-#if WEBGPU_BACKEND_WGPU
-    // TODO Remove once wgpu switches to WGPUStringView.
-    surfaceDescriptor.label = nullptr;
-#endif
     surfaceDescriptor.nextInChain = reinterpret_cast<const WGPUChainedStruct*>(&platformSurfaceSource);
 
     surface = wgpuInstanceCreateSurface(instance, &surfaceDescriptor);
@@ -116,21 +112,15 @@ void Adapter::RequestAdapter(WGPUBackendType backendType) {
     };
     UserData userData;
 
-#if WEBGPU_BACKEND_DAWN
-    wgpuInstanceRequestAdapter(
-        instance, &options, [](WGPURequestAdapterStatus status, WGPUAdapter adapter, WGPUStringView message, void* userdata) {
-            UserData* userData = reinterpret_cast<UserData*>(userdata);
-            userData->adapter = adapter;
-            userData->finished = true;
-        }, &userData);
-#else
-    wgpuInstanceRequestAdapter(
-        instance, &options, [](WGPURequestAdapterStatus status, WGPUAdapter adapter, char const* message, void* userdata) {
-            UserData* userData = reinterpret_cast<UserData*>(userdata);
-            userData->adapter = adapter;
-            userData->finished = true;
-        }, & userData);
-#endif
+    WGPURequestAdapterCallbackInfo2 callbackInfo = {};
+    callbackInfo.mode = WGPUCallbackMode_AllowSpontaneous;
+    callbackInfo.callback = [](WGPURequestAdapterStatus status, WGPUAdapter adapter, WGPUStringView message, void* userdata1, void* userdata2) {
+        UserData* userData = reinterpret_cast<UserData*>(userdata1);
+        userData->adapter = adapter;
+        userData->finished = true;
+    };
+    callbackInfo.userdata1 = &userData;
+    wgpuInstanceRequestAdapter2(instance, &options, callbackInfo);
 
     // Wait for request to finish.
     while (!userData.finished) {
@@ -143,11 +133,7 @@ void Adapter::RequestAdapter(WGPUBackendType backendType) {
     WGPUAdapterInfo info = {};
     wgpuAdapterGetInfo(adapter, &info);
 
-#if WEBGPU_BACKEND_DAWN
     const std::string_view deviceName(info.device.data, info.device.length);
-#else
-    const std::string_view deviceName = info.device;
-#endif
     Logging::Info("Selected adapter " + std::string(deviceName) + "\n");
 
     Logging::Info("Backend type: ");
