@@ -24,7 +24,8 @@ Device::Device(Adapter& adapter) {
         WGPUFeatureName_ShaderF16,
         WGPUFeatureName_RG11B10UfloatRenderable,
         WGPUFeatureName_BGRA8UnormStorage,
-        WGPUFeatureName_Float32Filterable
+        WGPUFeatureName_Float32Filterable,
+        WGPUFeatureName_Float32Blendable
     };
     for (WGPUFeatureName feature : desiredFeatures) {
         if (wgpuAdapterHasFeature(adapter.GetAdapter(), feature)) {
