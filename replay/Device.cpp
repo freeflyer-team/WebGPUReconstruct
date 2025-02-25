@@ -18,8 +18,14 @@ Device::Device(Adapter& adapter) {
         WGPUFeatureName_Depth32FloatStencil8,
         WGPUFeatureName_TimestampQuery,
         WGPUFeatureName_TextureCompressionBC,
+#if WEBGPU_BACKEND_WGPU
+        WGPUFeatureName_TextureCompressionBCSliced3D,
+#endif
         WGPUFeatureName_TextureCompressionETC2,
         WGPUFeatureName_TextureCompressionASTC,
+#if WEBGPU_BACKEND_WGPU
+        WGPUFeatureName_TextureCompressionASTCSliced3D,
+#endif
         WGPUFeatureName_IndirectFirstInstance,
         WGPUFeatureName_ShaderF16,
         WGPUFeatureName_RG11B10UfloatRenderable,
