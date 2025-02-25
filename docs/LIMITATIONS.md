@@ -9,7 +9,6 @@ Since workers run in a separate context, WebGPUReconstruct is not able to captur
 ## Unsupported features
 The following optional WebGPU features are not supported:
 - `depth-clip-control`
-- `clip-distances`
 - `dual-source-blending`
 - `subgroups`
 
