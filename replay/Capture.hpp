@@ -40,6 +40,9 @@ class Capture {
     };
 
     const CanvasSize& GetCanvasSize() const;
+    
+    uint32_t GetVersionMajor() const;
+    uint32_t GetVersionMinor() const;
 
   private:
     Adapter& adapter;
@@ -65,6 +68,8 @@ $MAPS
     CanvasSize canvasSize;
 
     bool valid = true;
+    uint32_t versionMajor = 0;
+    uint32_t versionMinor = 0;
     bool hasBegun = false;
     WGPUShaderModule copyVertexShader;
     WGPUShaderModule copyFragmentShader;

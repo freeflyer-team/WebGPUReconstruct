@@ -4,7 +4,7 @@ import subprocess
 
 version = (0, 3)
 # Increment the file version whenever a change is introduced.
-fileVersion = 4
+fileVersion = 5
 
 versionString = str(version[0]) + "." + str(version[1])
 versionInt = version[0] * 10000 + version[1]
@@ -61,6 +61,8 @@ def write_capture_files(configuration, browser):
     contentPath = "build/capture/" + browser + "/scripts/content.js"
     add_prefix_to_file(contentPath, "const __WebGPUReconstruct_DEBUG = " + ("true" if configuration["debug"] else "false") + ";\n")
     replace_string_in_file(contentPath, "$FILE_VERSION", str(fileVersion))
+    replace_string_in_file(contentPath, "$VERSION_MAJOR", str(version[0]))
+    replace_string_in_file(contentPath, "$VERSION_MINOR", str(version[1]))
     replace_string_in_file(contentPath, "$CAPTURE_COMMANDS", captureCommandsString)
     replace_string_in_file(contentPath, "$WRAP_COMMANDS", wrapCommandsString)
     

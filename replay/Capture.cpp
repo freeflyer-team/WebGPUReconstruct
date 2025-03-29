@@ -30,10 +30,16 @@ Capture::Capture(string_view filename, Adapter& adapter, Device& device, SwapCha
     this->offscreen = offscreen;
 
     const uint32_t version = reader.ReadUint32();
+    if (version >= 5) {
+        // Capture extension version number was introduced in file version 5.
+        versionMajor = reader.ReadUint32();
+        versionMinor = reader.ReadUint32();
+    }
+    
     if (version != FILE_VERSION) {
         Logging::Error("The capture file was saved using a different version of WebGPUReconstruct.\n");
-        Logging::Error("Capture version: " + std::to_string(version) + "\n");
-        Logging::Error("WebGPUNativeReplay version: " + std::to_string(FILE_VERSION) + "\n");
+        Logging::Error("Capture version: " + std::to_string(version) + " (" + std::to_string(versionMajor) + "." + std::to_string(versionMinor) + ")\n");
+        Logging::Error("WebGPUNativeReplay version: " + std::to_string(FILE_VERSION) + " (" + std::to_string(VERSION_MAJOR) + "." + std::to_string(VERSION_MINOR) + ")\n");
         valid = false;
         return;
     }
@@ -318,6 +324,14 @@ $RUN_COMMANDS
 
 const Capture::CanvasSize& Capture::GetCanvasSize() const {
     return canvasSize;
+}
+
+uint32_t Capture::GetVersionMajor() const {
+    return versionMajor;
+}
+
+uint32_t Capture::GetVersionMinor() const {
+    return versionMinor;
 }
 
 void Capture::AddCanvasSize(uint32_t width, uint32_t height) {

@@ -101,6 +101,7 @@ void TestApp::RunCapture(string_view filename, std::function<bool(void)> frameCa
         }
         stats << "\n";
 
+        stats << "Capture version " << capture.GetVersionMajor() << "." << capture.GetVersionMinor() << "\n";
         stats << "Replayer version " << VERSION_MAJOR << "." << VERSION_MINOR << "\n";
         stats << Configuration::GetImplementationVersion() << "\n";
 

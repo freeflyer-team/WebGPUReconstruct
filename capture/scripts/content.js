@@ -522,6 +522,8 @@ class __WebGPUReconstruct {
         __WebGPUReconstruct_DebugOutput("Starting WebGPU Reconstruct");
         
         __WebGPUReconstruct_file.writeUint32($FILE_VERSION);
+        __WebGPUReconstruct_file.writeUint32($VERSION_MAJOR);
+        __WebGPUReconstruct_file.writeUint32($VERSION_MINOR);
         
         GPUAdapter.prototype.requestDevice = this.wrapMethodOriginalAsArgument(GPUAdapter.prototype.requestDevice, __WebGPUReconstruct_GPUAdapter_requestDevice);
         GPU.prototype.requestAdapter = this.wrapMethodOriginalAsArgument(GPU.prototype.requestAdapter, __WebGPUReconstruct_GPU_requestAdapter);
