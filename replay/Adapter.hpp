@@ -10,6 +10,7 @@ class Adapter {
     Adapter(const Window& window, WGPUBackendType backendType);
     ~Adapter();
 
+    WGPUInstance GetInstance();
     WGPUAdapter GetAdapter();
     WGPUSurface GetSurface();
 

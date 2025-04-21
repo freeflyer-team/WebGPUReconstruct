@@ -42,6 +42,10 @@ Adapter::~Adapter() {
     wgpuInstanceRelease(instance);
 }
 
+WGPUInstance Adapter::GetInstance() {
+    return instance;
+}
+
 WGPUAdapter Adapter::GetAdapter() {
     return adapter;
 }

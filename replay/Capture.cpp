@@ -162,23 +162,17 @@ Capture::Status Capture::RunNextCommand() {
     {
         // Wait for GPU work to finish.
         std::atomic<bool> done = false;
-        
-#if WEBGPU_BACKEND_DAWN
-        wgpuQueueOnSubmittedWorkDone(device.GetQueue(), [](WGPUQueueWorkDoneStatus status, void* userdata1) {
-            *static_cast<std::atomic<bool>*>(userdata1) = true;
-            }, &done);
-#else
-        WGPUQueueWorkDoneCallbackInfo callbackInfo = {};
-        callbackInfo.mode = WGPUCallbackMode_AllowSpontaneous;
+
+        WGPUQueueWorkDoneCallbackInfo2 callbackInfo = {};
+        callbackInfo.mode = WGPUCallbackMode_AllowProcessEvents;
         callbackInfo.callback = [](WGPUQueueWorkDoneStatus status, void* userdata1, void* userdata2) {
             *static_cast<std::atomic<bool>*>(userdata1) = true;
             };
         callbackInfo.userdata1 = &done;
-        wgpuQueueOnSubmittedWorkDone(device.GetQueue(), callbackInfo);
-#endif
-        
+        wgpuQueueOnSubmittedWorkDone2(device.GetQueue(), callbackInfo);
+
         while (!done) {
-            wgpuDeviceTick(device.GetDevice());
+            wgpuInstanceProcessEvents(adapter.GetInstance());
             this_thread::yield();
         }
 
