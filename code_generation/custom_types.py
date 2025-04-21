@@ -46,11 +46,13 @@ if ($name.a != undefined) {
 __WebGPUReconstruct_file.writeFloat64($name.a);
 } else {
 __WebGPUReconstruct_file.writeFloat64($name[3]);
-}""", """
+}
+""", """
 $name.r = reader.ReadFloat64();
 $name.g = reader.ReadFloat64();
 $name.b = reader.ReadFloat64();
-$name.a = reader.ReadFloat64();""", "WGPUColor $name;", "&$name"
+$name.a = reader.ReadFloat64();
+""", "WGPUColor $name;", "&$name"
 )
 
 GPUExtent3D = CustomType("""
@@ -165,21 +167,23 @@ GPUBindGroupEntry.nativeName = "WGPUBindGroupEntry"
 
 GPUConstants = CustomType("""
 if ($names == undefined) {
-$names = {};
-}
+__WebGPUReconstruct_file.writeUint64(0);
+} else {
 let keys = Object.keys($names);
 __WebGPUReconstruct_file.writeUint64(keys.length);
 for (let i = 0; i < keys.length; i += 1) {
 """ + String.save("keys[i]") + """
 __WebGPUReconstruct_file.writeFloat64($names[keys[i]]);
 }
+}
 """, """
 $nameCount = reader.ReadUint64();
-$names = new WGPUConstantEntry[$nameCount];
+WGPUConstantEntry* constants = new WGPUConstantEntry[$nameCount];
 for (uint64_t keyI = 0; keyI < $nameCount; ++keyI) {
-""" + String.load("const_cast<WGPUConstantEntry*>(&$names[keyI])->key") + """
-const_cast<WGPUConstantEntry*>(&$names[keyI])->value = reader.ReadFloat64();
+""" + String.load("constants[keyI].key") + """
+constants[keyI].value = reader.ReadFloat64();
 }
+$names = constants;
 """, 'assert(false);\n', '$name', """
 for (uint64_t keyI = 0; keyI < $nameCount; ++keyI) {
 if ($names[keyI].key.length > 0) {

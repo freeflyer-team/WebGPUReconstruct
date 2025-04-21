@@ -3,56 +3,66 @@ from code_generation.enum_types import *
 from code_generation.custom_types import *
 from code_generation.unsupported_type import *
 
+structSaveFunctionsString = ""
+structLoadFunctionsString = ""
+structFunctionDeclarationsString = ""
+
 # Composite type.
 class StructType:
     def __init__(self, webName, members):
+        global structSaveFunctionsString
+        global structLoadFunctionsString
+        global structFunctionDeclarationsString
+        
         self.webName = webName
         self.nativeName = "W" + webName
         self.members = members
+        
+        capture = 'function __WebGPUReconstruct_' + webName + '_Save(value) {\n'
+        for member in self.members:
+            if len(member) >= 3:
+                capture += 'if (value.' + member[1] + ' == undefined) {\n'
+                capture += member[0].save(member[2])
+                capture += '} else {\n'
+                capture += member[0].save('value.' + member[1])
+                capture += '}\n'
+            else:
+                capture += member[0].save('value.' + member[1])
+        capture += '}\n'
+        
+        structSaveFunctionsString += capture
+        
+        load = 'void Capture::Load' + self.webName + '(' + self.nativeName + '* value) {\n'
+        load += '*value = {};\n'
+        for member in self.members:
+            load += member[0].load('value->' + member[1])
+        load += '}\n'
+        
+        structLoadFunctionsString += load
+        
+        functionDeclarations = 'void Load' + self.webName + '(' + self.nativeName + '* value);\n'
+        
+        structFunctionDeclarationsString += functionDeclarations
     
     def save(self, name, isInArray = False):
         capture = ''
         if isInArray:
-            for member in self.members:
-                if len(member) >= 3:
-                    capture += 'if (' + name + '.' + member[1] + ' == undefined) {\n'
-                    capture += name + '.' + member[1] + ' = ' + member[2] + '\n'
-                    capture += '}\n'
-                
-                capture += member[0].save(name + '.' + member[1])
+            capture += '__WebGPUReconstruct_' + self.webName + '_Save(' + name + ');\n'
         else:
             capture += 'if (' + name  + ' == undefined) {\n'
             capture += '__WebGPUReconstruct_file.writeUint8(0);\n'
             capture += '} else {\n'
             capture += '__WebGPUReconstruct_file.writeUint8(1);\n'
-            for member in self.members:
-                # Set default value (if one was specified).
-                if len(member) >= 3:
-                    capture += 'if (' + name + '.' + member[1] + ' == undefined) {\n'
-                    capture += name + '.' + member[1] + ' = ' + member[2] + '\n'
-                    capture += '}\n'
-                
-                capture += member[0].save(name + '.' + member[1])
+            capture += '__WebGPUReconstruct_' + self.webName + '_Save(' + name + ');\n'
             capture += '}\n'
         return capture
     
     def load(self, name, isInArray = False):
         replay = ''
         if isInArray:
-            replay += name + ' = {};\n'
-            for member in self.members:
-                replay += member[0].load(name + '.' + member[1])
+            replay += 'Load' + self.webName + '(&' + name + ');\n'
         else:
-            replay += 'if (reader.ReadUint8()) {\n'
-            replay += name + ' = new ' + self.nativeName + ';\n'
-            replay += '*const_cast<' + self.nativeName + '*>(' + name + ') = {};\n'
-            
-            for member in self.members:
-                replay += member[0].load('const_cast<' + self.nativeName + '*>(' + name + ')->' + member[1])
-            
-            replay += '} else {\n'
-            replay += name + ' = nullptr;\n'
-            replay += '}\n'
+            replay += name + ' = LoadStructPointer(&Capture::Load' + self.webName + ');\n'
         return replay
     
     def declare_argument(self, name):
@@ -76,19 +86,30 @@ class StructType:
 
 # Struct that's included directly inside another struct (as opposed to a pointer to a struct).
 class SubStructType:
-    def __init__(self, members):
+    def __init__(self, webName, members):
+        global structSaveFunctionsString
+        global structLoadFunctionsString
+        global structCleanFunctionsString
+        
+        self.webName = webName
         self.members = members
+        
+        capture = 'function __WebGPUReconstruct_' + webName + '_Save(value) {\n'
+        for member in self.members:
+            if len(member) >= 3:
+                capture += 'if (value.' + member[1] + ' == undefined) {\n'
+                capture += member[0].save(member[2])
+                capture += '} else {\n'
+                capture += member[0].save('value.' + member[1])
+                capture += '}\n'
+            else:
+                capture += member[0].save('value.' + member[1])
+        capture += '}\n'
+        
+        structSaveFunctionsString += capture
     
     def save(self, name):
-        capture = ''
-        for member in self.members:
-            # Set default value (if one was specified).
-            if len(member) >= 3:
-                capture += 'if (' + name + '.' + member[1] + ' == undefined) {\n'
-                capture += name + '.' + member[1] + ' = ' + member[2] + '\n'
-                capture += '}\n'
-            
-            capture += member[0].save(name + '.' + member[1])
+        capture = '__WebGPUReconstruct_' + self.webName + '_Save(' + name + ');\n'
         return capture
     
     def load(self, name):
@@ -130,14 +151,15 @@ class ArrayType:
         plural = self.get_plural_name(name)
         
         capture = 'if (' + plural + ' == undefined) {\n'
-        capture += plural + ' = [];\n'
-        capture += '}\n'
+        capture += '__WebGPUReconstruct_file.writeUint64(0);\n'
+        capture += '} else {\n'
         capture += '__WebGPUReconstruct_file.writeUint64(' + plural + '.length);\n'
         capture += 'for (let i' + str(arrayDepth) + ' = 0; i' + str(arrayDepth) + ' < ' + plural + '.length; i' + str(arrayDepth) + ' += 1) {\n'
         if isinstance(self.type, StructType):
             capture += self.type.save(plural + '[i' + str(arrayDepth) + ']', True)
         else:
             capture += self.type.save(plural + '[i' + str(arrayDepth) + ']')
+        capture += '}\n'
         capture += '}\n'
         
         arrayDepth -= 1
@@ -149,16 +171,20 @@ class ArrayType:
         plural = self.get_plural_name(name)
         
         replay = name + 'Count = reader.ReadUint64();\n'
+        replay += '{\n'
+        replay += self.type.nativeName + '* a' + str(arrayDepth) + ';\n'
         replay += 'if (' + name + 'Count > 0) {\n'
-        replay += plural + ' = new ' + self.type.nativeName + '[' + name + 'Count];\n'
+        replay += 'a' + str(arrayDepth) + ' = new ' + self.type.nativeName + '[' + name + 'Count];\n'
         replay += '} else {\n'
-        replay += plural + ' = nullptr;\n';
+        replay += 'a' + str(arrayDepth) + ' = nullptr;\n';
         replay += '}\n'
         replay += 'for (uint64_t i' + str(arrayDepth) + ' = 0; i' + str(arrayDepth) + ' < ' + name + 'Count; ++i' + str(arrayDepth) + ') {\n'
         if isinstance(self.type, StructType):
-            replay += self.type.load('const_cast<' + self.type.nativeName + '*>(' + plural + ')[i' + str(arrayDepth) + ']', True)
+            replay += self.type.load('a' + str(arrayDepth) + '[i' + str(arrayDepth) + ']', True)
         else:
-            replay += self.type.load('const_cast<' + self.type.nativeName + '*>(' + plural + ')[i' + str(arrayDepth) + ']')
+            replay += self.type.load('a' + str(arrayDepth) + '[i' + str(arrayDepth) + ']')
+        replay += '}\n'
+        replay += plural + ' = a' + str(arrayDepth) + ';\n'
         replay += '}\n'
         arrayDepth -= 1
         return replay
@@ -239,7 +265,7 @@ GPURenderPassDescriptor = StructType("GPURenderPassDescriptor", [
     [Unsupported, "maxDrawCount"] # <- TODO In native spec, this is a chained struct.
 ])
 
-GPUBlendComponent = SubStructType([
+GPUBlendComponent = SubStructType("GPUBlendComponent", [
     [GPUBlendOperation, "operation"],
     [GPUBlendFactor, "srcFactor", '"one"'],
     [GPUBlendFactor, "dstFactor"]
@@ -262,14 +288,14 @@ GPUVertexBufferLayout = StructType("GPUVertexBufferLayout", [
     [ArrayType(GPUVertexAttribute), "attribute"]
 ])
 
-GPUVertexState = SubStructType([
+GPUVertexState = SubStructType("GPUVertexState", [
     [GPUShaderModule, "module"],
     [String, "entryPoint"],
     [GPUConstants, "constant"],
     [ArrayType(GPUVertexBufferLayout), "buffer"],
 ])
 
-GPUPrimitiveState = SubStructType([
+GPUPrimitiveState = SubStructType("GPUPrimitiveState", [
     [GPUPrimitiveTopology, "topology", '"triangle-list"'],
     [GPUIndexFormat, "stripIndexFormat"],
     [GPUFrontFace, "frontFace", '"ccw"'],
@@ -277,7 +303,7 @@ GPUPrimitiveState = SubStructType([
     #[Unsupported, "unclippedDepth"] # <- TODO depth-clip-control
 ])
 
-GPUStencilFaceState = SubStructType([
+GPUStencilFaceState = SubStructType("GPUStencilFaceState", [
     [GPUCompareFunction, "compare", '"always"'],
     [GPUStencilOperation, "failOp", '"keep"'],
     [GPUStencilOperation, "depthFailOp", '"keep"'],
@@ -310,7 +336,7 @@ GPUFragmentState = StructType("GPUFragmentState", [
     [ArrayType(GPUColorTargetState), "target"],
 ])
 
-GPUMultisampleState = SubStructType([
+GPUMultisampleState = SubStructType("GPUMultisampleState", [
     [Uint32, "count", '1'],
     [Uint32, "mask", '0xFFFFFFFF'],
     [Bool, "alphaToCoverageEnabled"],
@@ -341,7 +367,7 @@ GPUTextureDescriptor = StructType("GPUTextureDescriptor", [
     [GPUTextureDimension, "dimension", '"2d"'],
     [GPUTextureFormat, "format"],
     [Uint32, "usage"],
-    [ArrayType(GPUTextureFormat), "viewFormat", '[]']
+    [ArrayType(GPUTextureFormat), "viewFormat"]
 ])
 
 GPUBindGroupDescriptor = StructType("GPUBindGroupDescriptor", [
@@ -371,23 +397,23 @@ GPUImageCopyTexture = StructType("GPUImageCopyTexture", [
     [GPUTextureAspect, "aspect", '"all"']
 ])
 
-GPUBufferBindingLayout = SubStructType([
+GPUBufferBindingLayout = SubStructType("GPUBufferBindingLayout", [
     [GPUBufferBindingType, "type", '"uniform"'],
     [Bool, "hasDynamicOffset"],
     [Uint64, "minBindingSize"]
 ])
 
-GPUSamplerBindingLayout = SubStructType([
+GPUSamplerBindingLayout = SubStructType("GPUSamplerBindingLayout", [
     [GPUSamplerBindingType, "type", '"filtering"']
 ])
 
-GPUTextureBindingLayout = SubStructType([
+GPUTextureBindingLayout = SubStructType("GPUTextureBindingLayout", [
     [GPUTextureSampleType, "sampleType", '"float"'],
     [GPUTextureViewDimension, "viewDimension", '"2d"'],
     [Bool, "multisampled"]
 ])
 
-GPUStorageTextureBindingLayout = SubStructType([
+GPUStorageTextureBindingLayout = SubStructType("GPUStorageTextureBindingLayout", [
     [GPUStorageTextureAccess, "access", '"write-only"'],
     [GPUTextureFormat, "format"],
     [GPUTextureViewDimension, "viewDimension", '"2d"']
@@ -413,7 +439,7 @@ GPUPipelineLayoutDescriptor = StructType("GPUPipelineLayoutDescriptor", [
     [ArrayType(GPUBindGroupLayout), "bindGroupLayout"]
 ])
 
-GPUProgrammableStageDescriptor = SubStructType([
+GPUProgrammableStageDescriptor = SubStructType("GPUProgrammableStageDescriptor", [
     [GPUShaderModule, "module"],
     [String, "entryPoint"],
     [GPUConstants, "constant"]
