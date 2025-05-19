@@ -67,7 +67,14 @@ void Adapter::InitializeBackend() {
 
 void Adapter::CreateInstance() {
     WGPUInstanceDescriptor instanceDescriptor = {};
-    instanceDescriptor.nextInChain = nullptr;
+
+#if WEBGPU_BACKEND_WGPU
+    WGPUInstanceExtras extras = {};
+    extras.chain.sType = static_cast<WGPUSType>(WGPUSType_InstanceExtras);
+    extras.flags = WGPUInstanceFlag_Debug;
+
+    instanceDescriptor.nextInChain = reinterpret_cast<WGPUChainedStruct*>(&extras);
+#endif
 
     instance = wgpuCreateInstance(&instanceDescriptor);
 }
