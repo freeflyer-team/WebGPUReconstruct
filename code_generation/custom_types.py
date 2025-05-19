@@ -193,7 +193,7 @@ delete[] $names[keyI].key.data;
 delete[] $names;
 """)
 
-GPUImageCopyBuffer = CustomType(GPUBuffer.save("$name.buffer") + "\n"
+GPUTexelCopyBufferInfo = CustomType(GPUBuffer.save("$name.buffer") + "\n"
     + Uint64.save("$name.offset") + "\n"
     + Uint32DefaultMax.save("$name.bytesPerRow") + "\n"
     + Uint32DefaultMax.save("$name.rowsPerImage"),
@@ -201,7 +201,7 @@ GPUImageCopyBuffer = CustomType(GPUBuffer.save("$name.buffer") + "\n"
     + Uint64.load("$name.layout.offset") + "\n"
     + Uint32DefaultMax.load("$name.layout.bytesPerRow") + "\n"
     + Uint32DefaultMax.load("$name.layout.rowsPerImage"),
-    "WGPUImageCopyBuffer $name;",
+    "WGPUTexelCopyBufferInfo $name;",
     "&$name")
 
 # TODO Remove and define a GPUOptionalBool type.

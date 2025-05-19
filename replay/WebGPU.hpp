@@ -2,6 +2,9 @@
 
 #if WEBGPU_BACKEND_DAWN
 #include <dawn/webgpu.h>
+
+typedef WGPUPassTimestampWrites WGPUComputePassTimestampWrites;
+typedef WGPUPassTimestampWrites WGPURenderPassTimestampWrites;
 #endif
 
 #if WEBGPU_BACKEND_WGPU
@@ -10,11 +13,4 @@
 inline void wgpuDeviceTick(WGPUDevice device) {
     wgpuDevicePoll(device, false, nullptr);
 }
-
-typedef WGPULimits WGPUSupportedLimits;
-typedef WGPULimits WGPURequiredLimits;
-
-typedef WGPUTexelCopyTextureInfo WGPUImageCopyTexture;
-typedef WGPUTexelCopyBufferInfo WGPUImageCopyBuffer;
-typedef WGPUTexelCopyBufferLayout WGPUTextureDataLayout;
 #endif

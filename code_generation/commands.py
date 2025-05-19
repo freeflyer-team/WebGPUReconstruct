@@ -169,9 +169,9 @@ add_simple_command(GPURenderPipeline, "getBindGroupLayout", "wgpuRenderPipelineG
 add_simple_command(GPUCommandEncoder, "beginRenderPass", "wgpuCommandEncoderBeginRenderPass", GPURenderPassEncoder, [GPURenderPassDescriptor])
 add_simple_command(GPUCommandEncoder, "beginComputePass", "wgpuCommandEncoderBeginComputePass", GPUComputePassEncoder, [GPUComputePassDescriptor])
 add_simple_command(GPUCommandEncoder, "copyBufferToBuffer", "wgpuCommandEncoderCopyBufferToBuffer", undefined, [GPUBuffer, Uint64, GPUBuffer, Uint64, Uint64])
-add_simple_command(GPUCommandEncoder, "copyBufferToTexture", "wgpuCommandEncoderCopyBufferToTexture", undefined, [GPUImageCopyBuffer, GPUImageCopyTexture, GPUExtent3D])
-add_simple_command(GPUCommandEncoder, "copyTextureToBuffer", "wgpuCommandEncoderCopyTextureToBuffer", undefined, [GPUImageCopyTexture, GPUImageCopyBuffer, GPUExtent3D])
-add_simple_command(GPUCommandEncoder, "copyTextureToTexture", "wgpuCommandEncoderCopyTextureToTexture", undefined, [GPUImageCopyTexture, GPUImageCopyTexture, GPUExtent3D])
+add_simple_command(GPUCommandEncoder, "copyBufferToTexture", "wgpuCommandEncoderCopyBufferToTexture", undefined, [GPUTexelCopyBufferInfo, GPUTexelCopyTextureInfo, GPUExtent3D])
+add_simple_command(GPUCommandEncoder, "copyTextureToBuffer", "wgpuCommandEncoderCopyTextureToBuffer", undefined, [GPUTexelCopyTextureInfo, GPUTexelCopyBufferInfo, GPUExtent3D])
+add_simple_command(GPUCommandEncoder, "copyTextureToTexture", "wgpuCommandEncoderCopyTextureToTexture", undefined, [GPUTexelCopyTextureInfo, GPUTexelCopyTextureInfo, GPUExtent3D])
 add_simple_command(GPUCommandEncoder, "clearBuffer", "wgpuCommandEncoderClearBuffer", undefined, [GPUBuffer, Optional(Uint64, 0), Optional(Uint64, "arg0.size - arg1")])
 add_simple_command(GPUCommandEncoder, "resolveQuerySet", "wgpuCommandEncoderResolveQuerySet", undefined, [GPUQuerySet, Uint32, Uint32, GPUBuffer, Uint64])
 add_simple_command(GPUCommandEncoder, "finish", "wgpuCommandEncoderFinish", GPUCommandBuffer, [GPUCommandBufferDescriptor], "wgpuCommandEncoderRelease(subject);\n")
@@ -458,7 +458,7 @@ DebugOutput("getMappedRange\\n");
 add_custom_command(GPUQueue, "writeTexture", ["destination", "data", "dataLayout", "size"], """
 __WebGPUReconstruct_DebugOutput("writeTexture");
 __WebGPUReconstruct_file.writeUint32($COMMAND_ID);
-""" + GPUImageCopyTexture.save("destination") + GPUExtent3D.save("size") + """
+""" + GPUTexelCopyTextureInfo.save("destination") + GPUExtent3D.save("size") + """
 let dataUint8;
 if (ArrayBuffer.isView(data)) {
     dataUint8 = (new Uint8Array(data.buffer)).subarray(data.byteOffset, data.byteOffset + data.byteLength);
@@ -503,7 +503,7 @@ if (dataLayout2.rowsPerImage == undefined) {
     dataLayout2.rowsPerImage = Math.floor((physicalMipSize.y - 1) / blockSize.y + 1);
 }
 
-""" + GPUTextureDataLayout.save("dataLayout2") + """
+""" + GPUTexelCopyBufferLayout.save("dataLayout2") + """
 
 const offset = (dataLayout.offset == undefined) ? 0 : dataLayout.offset;
 const remainingBufferLength = dataUint8.length - offset;
@@ -513,13 +513,13 @@ __WebGPUReconstruct_file.writeUint64(dataLength);
 __WebGPUReconstruct_file.writeBuffer(dataUint8, offset, dataLength);
 """, """
 DebugOutput("writeTexture\\n");
-""" + GPUImageCopyTexture.declare_argument("destination") + GPUImageCopyTexture.load("destination") + GPUExtent3D.declare_argument("size") + GPUExtent3D.load("size") + GPUTextureDataLayout.declare_argument("dataLayout") + GPUTextureDataLayout.load("dataLayout") + """
+""" + GPUTexelCopyTextureInfo.declare_argument("destination") + GPUTexelCopyTextureInfo.load("destination") + GPUExtent3D.declare_argument("size") + GPUExtent3D.load("size") + GPUTexelCopyBufferLayout.declare_argument("dataLayout") + GPUTexelCopyBufferLayout.load("dataLayout") + """
 const uint64_t dataLength = reader.ReadUint64();
 uint8_t* data = new uint8_t[dataLength];
 reader.ReadBuffer(data, dataLength);
 wgpuQueueWriteTexture(device.GetQueue(), destination, data, dataLength, dataLayout, &size);
 delete[] data;
-""" + GPUImageCopyTexture.cleanup("destination") + GPUTextureDataLayout.cleanup("dataLayout"))
+""" + GPUTexelCopyTextureInfo.cleanup("destination") + GPUTexelCopyBufferLayout.cleanup("dataLayout"))
 
 add_custom_command(GPUQueue, "copyExternalImageToTexture", ["source", "destination", "copySize"], """
 __WebGPUReconstruct_DebugOutput("copyExternalImageToTexture");
@@ -533,7 +533,7 @@ __WebGPUReconstruct_file.writeUint32($COMMAND_ID);
 // the data during replay.
 
 // Default values.
-""" + GPUImageCopyTexture.save("destination") + GPUExtent3D.save("copySize") + """
+""" + GPUTexelCopyTextureInfo.save("destination") + GPUExtent3D.save("copySize") + """
 // Validation.
 let blockSize = __WebGPUReconstruct_get_block_size(destination.texture.format);
 if (blockSize.x != 1 || blockSize.y != 1) {
@@ -562,7 +562,7 @@ let dataLayout = {
 if (dataLayout.bytesPerRow > 0) {
     dataLayout.bytesPerRow = (Math.floor((dataLayout.bytesPerRow - 1) / 256) + 1) * 256;
 }
-""" + GPUTextureDataLayout.save("dataLayout") + """
+""" + GPUTexelCopyBufferLayout.save("dataLayout") + """
 
 // Reserve area for the data.
 let dataLength = dataLayout.bytesPerRow * dataLayout.rowsPerImage * size.depthOrArrayLayers;
@@ -623,7 +623,7 @@ __WebGPUReconstruct_GPUBuffer_mapAsync_original.call(dummyBuffer, GPUMapMode.REA
 """, """
 DebugOutput("copyExternalImageToTexture\\n");
 
-""" + GPUImageCopyTexture.declare_argument("destination") + GPUImageCopyTexture.load("destination") + GPUExtent3D.declare_argument("size") + GPUExtent3D.load("size") + GPUTextureDataLayout.declare_argument("dataLayout") + GPUTextureDataLayout.load("dataLayout") + """
+""" + GPUTexelCopyTextureInfo.declare_argument("destination") + GPUTexelCopyTextureInfo.load("destination") + GPUExtent3D.declare_argument("size") + GPUExtent3D.load("size") + GPUTexelCopyBufferLayout.declare_argument("dataLayout") + GPUTexelCopyBufferLayout.load("dataLayout") + """
 const uint64_t dataLength = reader.ReadUint64();
 uint8_t* data = new uint8_t[dataLength];
 reader.ReadBuffer(data, dataLength);
@@ -632,7 +632,7 @@ wgpuQueueWriteTexture(device.GetQueue(), destination, data, dataLength, dataLayo
 
 // Cleanup
 delete[] data;
-""" + GPUImageCopyTexture.cleanup("destination") + GPUTextureDataLayout.cleanup("dataLayout"))
+""" + GPUTexelCopyTextureInfo.cleanup("destination") + GPUTexelCopyBufferLayout.cleanup("dataLayout"))
 
 # Basic line indentation based on {}.
 def format(code, baseIndentation = 0):

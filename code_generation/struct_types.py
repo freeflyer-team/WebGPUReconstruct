@@ -390,7 +390,7 @@ GPUSamplerDescriptor = StructType("GPUSamplerDescriptor", [
     [Uint16, "maxAnisotropy", '1']
 ])
 
-GPUImageCopyTexture = StructType("GPUImageCopyTexture", [
+GPUTexelCopyTextureInfo = StructType("GPUTexelCopyTextureInfo", [
     [GPUTexture, "texture"],
     [Uint32, "mipLevel", '0'],
     [GPUOrigin3D, "origin", '{}'],
@@ -477,7 +477,7 @@ GPURenderBundleEncoderDescriptor = StructType("GPURenderBundleEncoderDescriptor"
     [Bool, "stencilReadOnly"]
 ])
 
-GPUTextureDataLayout = StructType("GPUTextureDataLayout", [
+GPUTexelCopyBufferLayout = StructType("GPUTexelCopyBufferLayout", [
     [Uint64, "offset"],
     [Uint32DefaultMax, "bytesPerRow"],
     [Uint32DefaultMax, "rowsPerImage"]
