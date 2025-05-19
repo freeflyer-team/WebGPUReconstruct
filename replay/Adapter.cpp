@@ -105,7 +105,7 @@ void Adapter::CreateSurface(const Window& window) {
 #endif
 
     WGPUSurfaceDescriptor surfaceDescriptor = {};
-    surfaceDescriptor.nextInChain = reinterpret_cast<const WGPUChainedStruct*>(&platformSurfaceSource);
+    surfaceDescriptor.nextInChain = reinterpret_cast<WGPUChainedStruct*>(&platformSurfaceSource);
 
     surface = wgpuInstanceCreateSurface(instance, &surfaceDescriptor);
 }
@@ -123,7 +123,7 @@ void Adapter::RequestAdapter(WGPUBackendType backendType) {
     };
     UserData userData;
 
-    WGPURequestAdapterCallbackInfo2 callbackInfo = {};
+    WGPURequestAdapterCallbackInfo callbackInfo = {};
     callbackInfo.mode = WGPUCallbackMode_AllowSpontaneous;
     callbackInfo.callback = [](WGPURequestAdapterStatus status, WGPUAdapter adapter, WGPUStringView message, void* userdata1, void* userdata2) {
         UserData* userData = reinterpret_cast<UserData*>(userdata1);
@@ -131,7 +131,7 @@ void Adapter::RequestAdapter(WGPUBackendType backendType) {
         userData->finished = true;
     };
     callbackInfo.userdata1 = &userData;
-    wgpuInstanceRequestAdapter2(instance, &options, callbackInfo);
+    wgpuInstanceRequestAdapter(instance, &options, callbackInfo);
 
     // Wait for request to finish.
     while (!userData.finished) {

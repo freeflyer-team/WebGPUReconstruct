@@ -338,7 +338,7 @@ wgsl.code.data = code;
 wgsl.code.length = codeLength;
 
 WGPUShaderModuleDescriptor descriptor = {};
-descriptor.nextInChain = reinterpret_cast<const WGPUChainedStruct*>(&wgsl);
+descriptor.nextInChain = reinterpret_cast<WGPUChainedStruct*>(&wgsl);
 // TODO Hints
 
 mapGPUShaderModule[id] = wgpuDeviceCreateShaderModule(device.GetDevice(), &descriptor);
@@ -420,7 +420,7 @@ userdata->bufferID = bufferID;
 userdata->mapState = &bufferMapState;
 userdata->lock = &bufferMapStateLock;
 
-WGPUBufferMapCallbackInfo2 callbackInfo = {};
+WGPUBufferMapCallbackInfo callbackInfo = {};
 callbackInfo.mode = WGPUCallbackMode_AllowProcessEvents;
 callbackInfo.callback = [](WGPUMapAsyncStatus status, WGPUStringView message, void* userdata1, void* userdata2){
     if (status != WGPUMapAsyncStatus_Success) {
@@ -435,7 +435,7 @@ callbackInfo.callback = [](WGPUMapAsyncStatus status, WGPUStringView message, vo
     delete userdata;
 };
 callbackInfo.userdata1 = userdata;
-wgpuBufferMapAsync2(buffer, mode, offset, size, callbackInfo);
+wgpuBufferMapAsync(buffer, mode, offset, size, callbackInfo);
 """)
 
 add_custom_command(GPUBuffer, "getMappedRange", ["offset", "size"], """

@@ -82,7 +82,7 @@ fn main(
     wgslSource.code.length = vertexShaderCode.size();
     
     WGPUShaderModuleDescriptor moduleDescriptor = {};
-    moduleDescriptor.nextInChain = reinterpret_cast<const WGPUChainedStruct*>(&wgslSource);
+    moduleDescriptor.nextInChain = reinterpret_cast<WGPUChainedStruct*>(&wgslSource);
     copyVertexShader = wgpuDeviceCreateShaderModule(device.GetDevice(), &moduleDescriptor);
     
     const std::string fragmentShaderCode = R"(
@@ -163,13 +163,13 @@ Capture::Status Capture::RunNextCommand() {
         // Wait for GPU work to finish.
         std::atomic<bool> done = false;
 
-        WGPUQueueWorkDoneCallbackInfo2 callbackInfo = {};
+        WGPUQueueWorkDoneCallbackInfo callbackInfo = {};
         callbackInfo.mode = WGPUCallbackMode_AllowProcessEvents;
         callbackInfo.callback = [](WGPUQueueWorkDoneStatus status, void* userdata1, void* userdata2) {
             *static_cast<std::atomic<bool>*>(userdata1) = true;
             };
         callbackInfo.userdata1 = &done;
-        wgpuQueueOnSubmittedWorkDone2(device.GetQueue(), callbackInfo);
+        wgpuQueueOnSubmittedWorkDone(device.GetQueue(), callbackInfo);
 
         while (!done) {
             wgpuInstanceProcessEvents(adapter.GetInstance());

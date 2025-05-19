@@ -56,16 +56,6 @@ Device::Device(Adapter& adapter) {
     deviceDescriptor.requiredFeatures = features.data();
     deviceDescriptor.requiredLimits = &requiredLimits;
 
-#if WEBGPU_BACKEND_DAWN
-    deviceDescriptor.deviceLostCallbackInfo2.mode = WGPUCallbackMode_WaitAnyOnly;
-    deviceDescriptor.deviceLostCallbackInfo2.callback = [](const WGPUDevice* device, WGPUDeviceLostReason reason, WGPUStringView message, void* userdata1, void* userdata2) {
-        Logging::Error("Device lost " + std::to_string(reason) + ": " + std::string(std::string_view(message.data, message.length)) + "\n");
-    };
-
-    deviceDescriptor.uncapturedErrorCallbackInfo2.callback = [](const WGPUDevice* device, WGPUErrorType type, WGPUStringView message, void* userdata1, void* userdata2) {
-        Logging::Error("Uncaptured device error " + std::to_string(type) + ": " + std::string(std::string_view(message.data, message.length)) + "\n");
-    };
-#else
     deviceDescriptor.deviceLostCallbackInfo.mode = WGPUCallbackMode_WaitAnyOnly;
     deviceDescriptor.deviceLostCallbackInfo.callback = [](const WGPUDevice* device, WGPUDeviceLostReason reason, WGPUStringView message, void* userdata1, void* userdata2) {
         Logging::Error("Device lost " + std::to_string(reason) + ": " + std::string(std::string_view(message.data, message.length)) + "\n");
@@ -74,7 +64,6 @@ Device::Device(Adapter& adapter) {
     deviceDescriptor.uncapturedErrorCallbackInfo.callback = [](const WGPUDevice* device, WGPUErrorType type, WGPUStringView message, void* userdata1, void* userdata2) {
         Logging::Error("Uncaptured device error " + std::to_string(type) + ": " + std::string(std::string_view(message.data, message.length)) + "\n");
     };
-#endif
 
 #if WEBGPU_BACKEND_DAWN
     // Make sure debug labels are forwarded.
@@ -87,7 +76,7 @@ Device::Device(Adapter& adapter) {
     dawnToggles.enabledToggles = toggles.data();
     dawnToggles.enabledToggleCount = toggles.size();
 
-    deviceDescriptor.nextInChain = reinterpret_cast<const WGPUChainedStruct*>(&dawnToggles);
+    deviceDescriptor.nextInChain = reinterpret_cast<WGPUChainedStruct*>(&dawnToggles);
 #endif
 
     struct UserData {
@@ -96,7 +85,7 @@ Device::Device(Adapter& adapter) {
     };
     UserData userData;
 
-    WGPURequestDeviceCallbackInfo2 callbackInfo = {};
+    WGPURequestDeviceCallbackInfo callbackInfo = {};
     callbackInfo.mode = WGPUCallbackMode_AllowSpontaneous;
     callbackInfo.callback = [](WGPURequestDeviceStatus status, WGPUDevice device, WGPUStringView message, void* userdata1, void* userdata2) {
         UserData* userData = reinterpret_cast<UserData*>(userdata1);
@@ -105,7 +94,7 @@ Device::Device(Adapter& adapter) {
     };
     callbackInfo.userdata1 = &userData;
 
-    wgpuAdapterRequestDevice2(adapter.GetAdapter(), &deviceDescriptor, callbackInfo);
+    wgpuAdapterRequestDevice(adapter.GetAdapter(), &deviceDescriptor, callbackInfo);
 
     // Wait for request to finish.
     while (!userData.finished) {
