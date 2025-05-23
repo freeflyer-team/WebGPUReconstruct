@@ -117,6 +117,20 @@ void Adapter::RequestAdapter(WGPUBackendType backendType) {
     options.forceFallbackAdapter = false;
     options.powerPreference = WGPUPowerPreference_HighPerformance;
 
+#if WEBGPU_BACKEND_DAWN
+    // Make sure debug labels are forwarded.
+    std::vector<const char*> toggles;
+    toggles.push_back("use_user_defined_labels_in_backend");
+    toggles.push_back("use_dxc");
+
+    WGPUDawnTogglesDescriptor dawnToggles = {};
+    dawnToggles.chain.sType = WGPUSType_DawnTogglesDescriptor;
+    dawnToggles.enabledToggles = toggles.data();
+    dawnToggles.enabledToggleCount = toggles.size();
+
+    options.nextInChain = reinterpret_cast<WGPUChainedStruct*>(&dawnToggles);
+#endif
+
     struct UserData {
         WGPUAdapter adapter = nullptr;
         std::atomic<bool> finished = false;
