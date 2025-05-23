@@ -54,6 +54,16 @@ WGPUSurface Adapter::GetSurface() {
     return surface;
 }
 
+#if WEBGPU_BACKEND_DAWN
+uint32_t Adapter::GetSubgroupMinSize() const {
+    return subgroupMinSize;
+}
+
+uint32_t Adapter::GetSubgroupMaxSize() const {
+    return subgroupMaxSize;
+}
+#endif
+
 void Adapter::InitializeBackend() {
 #if WEBGPU_BACKEND_DAWN
     // Initialize Dawn
@@ -188,6 +198,11 @@ void Adapter::RequestAdapter(WGPUBackendType backendType) {
         Logging::Info("OpenGL ES.\n");
         break;
     }
+
+#if WEBGPU_BACKEND_DAWN
+    subgroupMinSize = info.subgroupMinSize;
+    subgroupMaxSize = info.subgroupMaxSize;
+#endif
 }
 
 }

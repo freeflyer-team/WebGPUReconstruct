@@ -374,7 +374,7 @@ function __WebGPUReconstruct_get_bytes_per_block(format) {
 }
 
 // Features supported by WebGPUReconstruct. We will pretend the adapter doesn't support any other features.
-// TODO: depth-clip-control, dual-source-blending, subgroups
+// TODO: depth-clip-control, dual-source-blending
 var __WebGPUReconstruct_supportedFeatures = new Set([
     "core-features-and-limits",
     "depth32float-stencil8",
@@ -391,6 +391,7 @@ var __WebGPUReconstruct_supportedFeatures = new Set([
     "float32-filterable",
     "float32-blendable",
     "clip-distances",
+    "subgroups",
 ]);
 
 // Store the device so it can be used to create textures and buffers in copyExternalImageToTexture.
@@ -398,6 +399,7 @@ var __WebGPUReconstruct_device;
 
 function __WebGPUReconstruct_GPUAdapter_requestDevice(originalMethod, descriptor) {
     __WebGPUReconstruct_DebugOutput("requestDevice");
+    __WebGPUReconstruct_file.writeUint32(5);
     
     let overrideDescriptor = {};
     
@@ -417,6 +419,10 @@ function __WebGPUReconstruct_GPUAdapter_requestDevice(originalMethod, descriptor
             }
         }
     }
+    
+    __WebGPUReconstruct_file.writeUint8(overrideDescriptor.requiredFeatures.includes("subgroups") ? 1 : 0);
+    __WebGPUReconstruct_file.writeUint32(this.info.subgroupMinSize);
+    __WebGPUReconstruct_file.writeUint32(this.info.subgroupMaxSize);
     
     return originalMethod.call(this, overrideDescriptor).then((device) => {
         __WebGPUReconstruct_device = device;

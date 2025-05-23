@@ -201,8 +201,8 @@ Capture::Status Capture::RunNextCommand() {
         WGPUCommandEncoder encoder = wgpuDeviceCreateCommandEncoder(device.GetDevice(), nullptr);
         
         WGPUTexture swapChainTexture = swapChain.GetCurrentTexture().texture;
-        uint32_t swapChainWidth = wgpuTextureGetWidth(swapChainTexture);
-        uint32_t swapChainHeight = wgpuTextureGetHeight(swapChainTexture);
+        const uint32_t swapChainWidth = wgpuTextureGetWidth(swapChainTexture);
+        const uint32_t swapChainHeight = wgpuTextureGetHeight(swapChainTexture);
         
         WGPURenderPassColorAttachment attachment = {};
         attachment.view = wgpuTextureCreateView(swapChainTexture, nullptr);
@@ -272,7 +272,7 @@ Capture::Status Capture::RunNextCommand() {
     {
         DebugOutput("unmap\n");
 
-        uint32_t bufferID = reader.ReadUint32();
+        const uint32_t bufferID = reader.ReadUint32();
         WGPUBuffer buffer = GetIdType(mapGPUBuffer, bufferID);
 
         WaitForBufferMapping(bufferID);
@@ -294,12 +294,27 @@ Capture::Status Capture::RunNextCommand() {
     {
         DebugOutput("unmap (read)\n");
 
-        uint32_t bufferID = reader.ReadUint32();
+        const uint32_t bufferID = reader.ReadUint32();
         WGPUBuffer buffer = GetIdType(mapGPUBuffer, bufferID);
 
         WaitForBufferMapping(bufferID);
 
         wgpuBufferUnmap(buffer);
+        break;
+    }
+    case 5:
+    {
+        DebugOutput("requestDevice\n");
+        
+        const bool usesSubgroups = reader.ReadUint8();
+        const uint32_t subgroupMinSize = reader.ReadUint32();
+        const uint32_t subgroupMaxSize = reader.ReadUint32();
+        
+#if WEBGPU_BACKEND_DAWN
+        if (usesSubgroups && (subgroupMinSize != adapter.GetSubgroupMinSize() || subgroupMaxSize != adapter.GetSubgroupMaxSize())) {
+            ErrorOutput("Capture and replay devices have different subgroup sizes. This may lead to incorrect replay behaviour.\n");
+        }
+#endif
         break;
     }
 // Generated code will be inserted here.
