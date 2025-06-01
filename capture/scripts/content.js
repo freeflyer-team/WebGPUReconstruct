@@ -403,13 +403,13 @@ function __WebGPUReconstruct_GPUAdapter_requestDevice(originalMethod, descriptor
     __WebGPUReconstruct_file.writeUint32(5);
     
     let overrideDescriptor = {};
+    overrideDescriptor.requiredFeatures = [];
     
     if (descriptor != undefined) {
         overrideDescriptor.label = descriptor.label;
         overrideDescriptor.requiredLimits = descriptor.requiredLimits;
         overrideDescriptor.defaultQueue = descriptor.defaultQueue;
         
-        overrideDescriptor.requiredFeatures = [];
         if (descriptor.requiredFeatures != undefined) {
             for (const feature of descriptor.requiredFeatures) {
                 if (__WebGPUReconstruct_supportedFeatures.has(String(feature))) {
