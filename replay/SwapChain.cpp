@@ -70,7 +70,7 @@ SwapChain::~SwapChain() {
 WGPUSurfaceTexture SwapChain::GetCurrentTexture() {
     WGPUSurfaceTexture surfaceTexture;
     wgpuSurfaceGetCurrentTexture(surface, &surfaceTexture);
-    assert(surfaceTexture.status == WGPUSurfaceGetCurrentTextureStatus_Success);
+    assert(surfaceTexture.status == WGPUSurfaceGetCurrentTextureStatus_SuccessOptimal || surfaceTexture.status == WGPUSurfaceGetCurrentTextureStatus_SuccessSuboptimal);
 
     return surfaceTexture;
 }
