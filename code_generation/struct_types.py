@@ -284,7 +284,7 @@ GPUVertexAttribute = StructType("GPUVertexAttribute", [
 
 GPUVertexBufferLayout = StructType("GPUVertexBufferLayout", [
     [Uint64, "arrayStride"],
-    [GPUVertexStepMode, "stepMode"],
+    [GPUVertexStepMode, "stepMode", '"vertex"'],
     [ArrayType(GPUVertexAttribute), "attribute"]
 ])
 
