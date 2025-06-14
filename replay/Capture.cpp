@@ -165,9 +165,15 @@ Capture::Status Capture::RunNextCommand() {
 
         WGPUQueueWorkDoneCallbackInfo callbackInfo = {};
         callbackInfo.mode = WGPUCallbackMode_AllowProcessEvents;
+#if WEBGPU_BACKEND_DAWN
+        callbackInfo.callback = [](WGPUQueueWorkDoneStatus status, WGPUStringView message, void* userdata1, void* userdata2) {
+            *static_cast<std::atomic<bool>*>(userdata1) = true;
+            };
+#else
         callbackInfo.callback = [](WGPUQueueWorkDoneStatus status, void* userdata1, void* userdata2) {
             *static_cast<std::atomic<bool>*>(userdata1) = true;
             };
+#endif
         callbackInfo.userdata1 = &done;
         wgpuQueueOnSubmittedWorkDone(device.GetQueue(), callbackInfo);
 
