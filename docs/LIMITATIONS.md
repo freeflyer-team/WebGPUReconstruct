@@ -10,6 +10,7 @@ Since workers run in a separate context, WebGPUReconstruct is not able to captur
 The following optional WebGPU features are not supported:
 - `dual-source-blending`
 - `texture-formats-tier1`
+- `texture-formats-tier2`
 
 During capture, `GPUAdapter` will behave as if these features are not supported, even if the device supports them.
 
