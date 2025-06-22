@@ -88,6 +88,7 @@ $STRUCT_FUNCTION_DECLARATIONS
     
     void AddCanvasSize(uint32_t width, uint32_t height);
     void WaitForBufferMapping(uint32_t bufferID);
+    static void FreeChainedStruct(const WGPUChainedStruct* chain);
     
     template <class T>
     T GetIdType(std::unordered_map<uint32_t, T>& m, uint32_t id) {

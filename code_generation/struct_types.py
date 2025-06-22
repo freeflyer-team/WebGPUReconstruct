@@ -1,6 +1,6 @@
 from code_generation.non_captured_types import *
 from code_generation.enum_types import *
-from code_generation.custom_types import *
+from code_generation.chained_types import *
 from code_generation.unsupported_type import *
 
 structSaveFunctionsString = ""
@@ -262,7 +262,7 @@ GPURenderPassDescriptor = StructType("GPURenderPassDescriptor", [
     [GPURenderPassDepthStencilAttachment, "depthStencilAttachment"],
     [GPUQuerySet, "occlusionQuerySet"],
     [GPURenderPassTimestampWrites, "timestampWrites"],
-    [Unsupported, "maxDrawCount"] # <- TODO In native spec, this is a chained struct.
+    [MaxDrawCount, "maxDrawCount"]
 ])
 
 GPUBlendComponent = SubStructType("GPUBlendComponent", [

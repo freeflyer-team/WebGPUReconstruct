@@ -10,6 +10,7 @@
 #include <cassert>
 #include <climits>
 #include <cmath>
+#include <cstdlib>
 #include <string>
 #include <thread>
 
@@ -378,6 +379,14 @@ void Capture::WaitForBufferMapping(uint32_t bufferID) {
             mapped = state->second;
         }
         bufferMapStateLock.unlock();
+    }
+}
+
+void Capture::FreeChainedStruct(const WGPUChainedStruct* chain) {
+    while (chain != nullptr) {
+        WGPUChainedStruct* temp = const_cast<WGPUChainedStruct*>(chain);
+        chain = chain->next;
+        free(temp);
     }
 }
 

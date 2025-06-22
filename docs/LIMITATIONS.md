@@ -15,7 +15,6 @@ The following optional WebGPU features are not supported:
 During capture, `GPUAdapter` will behave as if these features are not supported, even if the device supports them.
 
 The following properties are not supported:
-- `GPURenderPassDescriptor.maxDrawCount`
 - `GPUShaderModuleDescriptor.compilationHints`
 
 These properties will be treated as if they were set to `undefined`. Setting an unsupported property will give you a warning during capture (but not during replay).
