@@ -4,7 +4,7 @@ import subprocess
 
 version = (0, 4)
 # Increment the file version whenever a change is introduced.
-fileVersion = 9
+fileVersion = 10
 
 versionString = str(version[0]) + "." + str(version[1])
 versionInt = version[0] * 10000 + version[1]

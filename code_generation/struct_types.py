@@ -262,7 +262,7 @@ GPURenderPassDescriptor = StructType("GPURenderPassDescriptor", [
     [GPURenderPassDepthStencilAttachment, "depthStencilAttachment"],
     [GPUQuerySet, "occlusionQuerySet"],
     [GPURenderPassTimestampWrites, "timestampWrites"],
-    [MaxDrawCount, "maxDrawCount"]
+    [GPURenderPassMaxDrawCount, "maxDrawCount"]
 ])
 
 GPUBlendComponent = SubStructType("GPUBlendComponent", [
@@ -426,7 +426,7 @@ GPUBindGroupLayoutEntry = StructType("GPUBindGroupLayoutEntry", [
     [GPUSamplerBindingLayout, "sampler", '{type:""}'],
     [GPUTextureBindingLayout, "texture", '{sampleType:""}'],
     [GPUStorageTextureBindingLayout, "storageTexture", '{access:""}'],
-    [Unsupported, "externalTexture"] # <- TODO Needs emulation.
+    [GPUExternalTextureBindingLayout, "externalTexture"]
 ])
 
 GPUBindGroupLayoutDescriptor = StructType("GPUBindGroupLayoutDescriptor", [

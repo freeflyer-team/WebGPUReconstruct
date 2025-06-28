@@ -13,4 +13,10 @@ typedef WGPUPassTimestampWrites WGPURenderPassTimestampWrites;
 inline void wgpuDeviceTick(WGPUDevice device) {
     wgpuDevicePoll(device, false, nullptr);
 }
+
+// Dummy struct for external textures until they are added to wgpu.
+typedef struct {
+    WGPUChainedStruct chain;
+} WGPUExternalTextureBindingLayout;
+#define WGPUSType_ExternalTextureBindingLayout WGPUSType_Force32
 #endif
