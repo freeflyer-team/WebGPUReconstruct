@@ -164,9 +164,7 @@ case 2:
     $name.size = reader.ReadUint64();
     break;
 case 3:
-    reader.ReadUint32();
-    ErrorOutput("External textures are not implemented for bind groups.\\n");
-    exit(0);
+    $name.textureView = externalTextures[reader.ReadUint32()].textureView;
     break;
 case 4:
     $name.textureView = GetDefaultTextureView(reader.ReadUint32());

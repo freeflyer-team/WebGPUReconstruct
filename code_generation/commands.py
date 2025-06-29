@@ -150,7 +150,6 @@ if (offsets != nullptr) {
 add_simple_command(GPUDevice, "createBuffer", "wgpuDeviceCreateBuffer", GPUBuffer, [GPUBufferDescriptor])
 add_simple_command(GPUDevice, "createTexture", "wgpuDeviceCreateTexture", GPUTexture, [GPUTextureDescriptor])
 add_simple_command(GPUDevice, "createSampler", "wgpuDeviceCreateSampler", GPUSampler, [GPUSamplerDescriptor])
-add_unsupported_command(GPUDevice, "importExternalTexture", 1)
 add_simple_command(GPUDevice, "createBindGroupLayout", "wgpuDeviceCreateBindGroupLayout", GPUBindGroupLayout, [GPUBindGroupLayoutDescriptor])
 add_simple_command(GPUDevice, "createPipelineLayout", "wgpuDeviceCreatePipelineLayout", GPUPipelineLayout, [GPUPipelineLayoutDescriptor])
 add_simple_command(GPUDevice, "createBindGroup", "wgpuDeviceCreateBindGroup", GPUBindGroup, [GPUBindGroupDescriptor])
@@ -633,6 +632,31 @@ wgpuQueueWriteTexture(device.GetQueue(), destination, data, dataLength, dataLayo
 // Cleanup
 delete[] data;
 """ + GPUTexelCopyTextureInfo.cleanup("destination") + GPUTexelCopyBufferLayout.cleanup("dataLayout"))
+
+add_custom_command(GPUDevice, "importExternalTexture", ["descriptor"], """
+__WebGPUReconstruct_DebugOutput("importExternalTexture");
+console.error("importExternalTexture is not supported. The external texture will be replaced with a 1x1 black texture during replay.");
+__WebGPUReconstruct_file.writeUint32($COMMAND_ID);
+__WebGPUReconstruct_AddId(result);
+__WebGPUReconstruct_file.writeUint32(result.__id);
+""", """
+DebugOutput("importExternalTexture\\n");
+const uint32_t id = reader.ReadUint32();
+
+WGPUTextureDescriptor desc = {};
+desc.usage = WGPUTextureUsage_TextureBinding;
+desc.dimension = WGPUTextureDimension_2D;
+desc.size.width = 1;
+desc.size.height = 1;
+desc.size.depthOrArrayLayers = 1;
+desc.format = WGPUTextureFormat_RGBA8Unorm;
+desc.mipLevelCount = 1;
+desc.sampleCount = 1;
+
+ExternalTexture& externalTexture = externalTextures[id];
+externalTexture.texture = wgpuDeviceCreateTexture(device.GetDevice(), &desc);
+externalTexture.textureView = wgpuTextureCreateView(externalTexture.texture, nullptr);
+""")
 
 # Basic line indentation based on {}.
 def format(code, baseIndentation = 0):

@@ -70,6 +70,12 @@ $STRUCT_FUNCTION_DECLARATIONS
     };
     std::map<uint32_t, CanvasTexture> canvasTextures;
     CanvasSize canvasSize;
+    
+    struct ExternalTexture {
+        WGPUTexture texture = nullptr;
+        WGPUTextureView textureView = nullptr;
+    };
+    std::map<uint32_t, ExternalTexture> externalTextures;
 
     std::unordered_map<uint32_t, bool> bufferMapState;
     std::mutex bufferMapStateLock;
