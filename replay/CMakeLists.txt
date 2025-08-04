@@ -38,6 +38,7 @@ set(SRC
 # Dawn
 if (WEBGPU_NATIVE_REPLAY_DAWN_BACKEND)
     set(DAWN_BUILD_SAMPLES OFF CACHE BOOL "Don't build Dawn samples" FORCE)
+    set(DAWN_BUILD_PROTOBUF OFF CACHE BOOL "Don't build the protobuf dependencies" FORCE)
     set(TINT_BUILD_CMD_TOOLS OFF CACHE BOOL "Don't build Tint command line tools" FORCE)
     set(TINT_BUILD_TESTS OFF CACHE BOOL "Don't build Tint tests" FORCE)
     set(TINT_BUILD_SPV_READER OFF CACHE BOOL "Don't build SPIR-V reader" FORCE)
