@@ -390,4 +390,16 @@ void Capture::FreeChainedStruct(const WGPUChainedStruct* chain) {
     }
 }
 
+WGPUTextureView Capture::GetDefaultTextureView(uint32_t textureID) {
+    auto it = defaultTextureViews.find(textureID);
+    if (it != defaultTextureViews.end()) {
+        return it->second;
+    }
+    
+    WGPUTexture texture = GetIdType(mapGPUTexture, textureID);
+    WGPUTextureView textureView = wgpuTextureCreateView(texture, nullptr);
+    defaultTextureViews[textureID] = textureView;
+    return textureView;
+}
+
 }

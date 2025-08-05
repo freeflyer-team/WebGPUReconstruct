@@ -129,6 +129,9 @@ if ($name.resource instanceof GPUSampler) {
     __WebGPUReconstruct_file.writeUint32($name.resource.__id);
     __WebGPUReconstruct_file.writeUint64(0);
     __WebGPUReconstruct_file.writeUint64($name.resource.size);
+} else if ($name.resource instanceof GPUTexture) {
+    __WebGPUReconstruct_file.writeUint8(4);
+    __WebGPUReconstruct_file.writeUint32($name.resource.__id);
 } else {
     __WebGPUReconstruct_file.writeUint8(2);
     __WebGPUReconstruct_file.writeUint32($name.resource.buffer.__id);
@@ -164,6 +167,9 @@ case 3:
     reader.ReadUint32();
     ErrorOutput("External textures are not implemented for bind groups.\\n");
     exit(0);
+    break;
+case 4:
+    $name.textureView = GetDefaultTextureView(reader.ReadUint32());
     break;
 default:
     ErrorOutput("Unknown resource type when creating bind group.\\n");
@@ -217,4 +223,29 @@ __WebGPUReconstruct_file.writeUint8($name);
 """,
 """
 $name = reader.ReadUint8() ? WGPUOptionalBool_True : WGPUOptionalBool_False;
+""")
+
+TextureOrTextureView = CustomType("""
+if ($name == undefined) {
+    __WebGPUReconstruct_file.writeUint8(0);
+} else if ($name instanceof GPUTextureView) {
+    __WebGPUReconstruct_file.writeUint8(1);
+    __WebGPUReconstruct_file.writeUint32($name.__id);
+} else if ($name instanceof GPUTexture) {
+    __WebGPUReconstruct_file.writeUint8(2);
+    __WebGPUReconstruct_file.writeUint32($name.__id);
+}
+""",
+"""
+switch (reader.ReadUint8()) {
+case 0:
+    $name = nullptr;
+    break;
+case 1:
+    $name = GetIdType(mapGPUTextureView, reader.ReadUint32());
+    break;
+case 2:
+    $name = GetDefaultTextureView(reader.ReadUint32());
+    break;
+}
 """)

@@ -73,6 +73,8 @@ $STRUCT_FUNCTION_DECLARATIONS
 
     std::unordered_map<uint32_t, bool> bufferMapState;
     std::mutex bufferMapStateLock;
+    
+    std::unordered_map<uint32_t, WGPUTextureView> defaultTextureViews;
 
     bool valid = true;
     uint32_t versionMajor = 0;
@@ -89,6 +91,7 @@ $STRUCT_FUNCTION_DECLARATIONS
     void AddCanvasSize(uint32_t width, uint32_t height);
     void WaitForBufferMapping(uint32_t bufferID);
     static void FreeChainedStruct(const WGPUChainedStruct* chain);
+    WGPUTextureView GetDefaultTextureView(uint32_t textureID);
     
     template <class T>
     T GetIdType(std::unordered_map<uint32_t, T>& m, uint32_t id) {

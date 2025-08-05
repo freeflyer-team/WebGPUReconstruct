@@ -230,16 +230,16 @@ GPUTextureViewDescriptor = StructType("GPUTextureViewDescriptor", [
 ])
 
 GPURenderPassColorAttachment = StructType("GPURenderPassColorAttachment", [
-    [GPUTextureView, "view"],
+    [TextureOrTextureView, "view"],
     [Uint32DefaultMax, "depthSlice"],
-    [GPUTextureView, "resolveTarget"],
+    [TextureOrTextureView, "resolveTarget"],
     [GPUColor, "clearValue", '[0, 0, 0, 0]'],
     [GPULoadOp, "loadOp"],
     [GPUStoreOp, "storeOp"]
 ])
 
 GPURenderPassDepthStencilAttachment = StructType("GPURenderPassDepthStencilAttachment", [
-    [GPUTextureView, "view"],
+    [TextureOrTextureView, "view"],
     [Float32, "depthClearValue"],
     [GPULoadOp, "depthLoadOp"],
     [GPUStoreOp, "depthStoreOp"],
