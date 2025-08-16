@@ -22,7 +22,7 @@ These properties will be treated as if they were set to `undefined`. Setting an 
 The following methods are not supported:
 - `GPUDevice.importExternalTexture()`
 
-External textures will be replaced by 1x1 black dummy textures.
+External textures will be replaced by black dummy textures.
 
 ## Object lifetimes
 During replay, all GPU objects will be kept alive for the entire duration of the capture. This is because, afaik, there is no way to know when JavaScript objects are garbage collected so I can't know when objects should be destroyed. It would be possible to at least destroy objects that are explicitly destroyed with the `destroy` method. However, this has not yet been implemented.

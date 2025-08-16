@@ -635,10 +635,25 @@ delete[] data;
 
 add_custom_command(GPUDevice, "importExternalTexture", ["descriptor"], """
 __WebGPUReconstruct_DebugOutput("importExternalTexture");
-console.error("importExternalTexture is not supported. The external texture will be replaced with a 1x1 black texture during replay.");
+console.error("importExternalTexture is not supported. The external texture will be replaced with a black texture during replay.");
 __WebGPUReconstruct_file.writeUint32($COMMAND_ID);
 __WebGPUReconstruct_AddId(result);
 __WebGPUReconstruct_file.writeUint32(result.__id);
+
+// Determine image dimensions based on https://gpuweb.github.io/gpuweb/#external-source-dimensions
+let width = 1;
+let height = 1;
+if (descriptor.source instanceof HTMLVideoElement) {
+    width = descriptor.source.videoWidth;
+    height = descriptor.source.videoHeight;
+} else if (descriptor.source instanceof VideoFrame) {
+    width = descriptor.source.displayWidth;
+    height = descriptor.source.displayHeight;
+} else {
+    console.error("Unknown source in importExternalTexture");
+}
+__WebGPUReconstruct_file.writeUint32(width);
+__WebGPUReconstruct_file.writeUint32(height);
 """, """
 DebugOutput("importExternalTexture\\n");
 const uint32_t id = reader.ReadUint32();
@@ -646,8 +661,8 @@ const uint32_t id = reader.ReadUint32();
 WGPUTextureDescriptor desc = {};
 desc.usage = WGPUTextureUsage_TextureBinding;
 desc.dimension = WGPUTextureDimension_2D;
-desc.size.width = 1;
-desc.size.height = 1;
+desc.size.width = reader.ReadUint32();
+desc.size.height = reader.ReadUint32();
 desc.size.depthOrArrayLayers = 1;
 desc.format = WGPUTextureFormat_RGBA8Unorm;
 desc.mipLevelCount = 1;
