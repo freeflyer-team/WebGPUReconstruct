@@ -637,6 +637,13 @@ add_custom_command(GPUDevice, "importExternalTexture", ["descriptor"], """
 __WebGPUReconstruct_DebugOutput("importExternalTexture");
 console.error("importExternalTexture is not supported. The external texture will be replaced with a black texture during replay.");
 __WebGPUReconstruct_file.writeUint32($COMMAND_ID);
+
+if (result.__id != undefined) {
+    // Duplicate import, no need to re-import.
+    __WebGPUReconstruct_file.writeUint8(0);
+    return;
+}
+__WebGPUReconstruct_file.writeUint8(1);
 __WebGPUReconstruct_AddId(result);
 __WebGPUReconstruct_file.writeUint32(result.__id);
 
@@ -656,21 +663,23 @@ __WebGPUReconstruct_file.writeUint32(width);
 __WebGPUReconstruct_file.writeUint32(height);
 """, """
 DebugOutput("importExternalTexture\\n");
-const uint32_t id = reader.ReadUint32();
+if (reader.ReadUint8()) {
+    const uint32_t id = reader.ReadUint32();
 
-WGPUTextureDescriptor desc = {};
-desc.usage = WGPUTextureUsage_TextureBinding;
-desc.dimension = WGPUTextureDimension_2D;
-desc.size.width = reader.ReadUint32();
-desc.size.height = reader.ReadUint32();
-desc.size.depthOrArrayLayers = 1;
-desc.format = WGPUTextureFormat_RGBA8Unorm;
-desc.mipLevelCount = 1;
-desc.sampleCount = 1;
+    WGPUTextureDescriptor desc = {};
+    desc.usage = WGPUTextureUsage_TextureBinding;
+    desc.dimension = WGPUTextureDimension_2D;
+    desc.size.width = reader.ReadUint32();
+    desc.size.height = reader.ReadUint32();
+    desc.size.depthOrArrayLayers = 1;
+    desc.format = WGPUTextureFormat_RGBA8Unorm;
+    desc.mipLevelCount = 1;
+    desc.sampleCount = 1;
 
-ExternalTexture& externalTexture = externalTextures[id];
-externalTexture.texture = wgpuDeviceCreateTexture(device.GetDevice(), &desc);
-externalTexture.textureView = wgpuTextureCreateView(externalTexture.texture, nullptr);
+    ExternalTexture& externalTexture = externalTextures[id];
+    externalTexture.texture = wgpuDeviceCreateTexture(device.GetDevice(), &desc);
+    externalTexture.textureView = wgpuTextureCreateView(externalTexture.texture, nullptr);
+}
 """)
 
 # Basic line indentation based on {}.
