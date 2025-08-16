@@ -433,15 +433,26 @@ function __WebGPUReconstruct_GPUAdapter_requestDevice(originalMethod, descriptor
 
 // Store original methods so we can call them without capturing.
 var __WebGPUReconstruct_GPUDevice_createTexture_original = GPUDevice.prototype.createTexture;
+var __WebGPUReconstruct_GPUDevice_createSampler_original = GPUDevice.prototype.createSampler;
 var __WebGPUReconstruct_GPUDevice_createBuffer_original = GPUDevice.prototype.createBuffer;
 var __WebGPUReconstruct_GPUDevice_createCommandEncoder_original = GPUDevice.prototype.createCommandEncoder;
+var __WebGPUReconstruct_GPUDevice_createShaderModule_original = GPUDevice.prototype.createShaderModule;
+var __WebGPUReconstruct_GPUDevice_createRenderPipeline_original = GPUDevice.prototype.createRenderPipeline;
+var __WebGPUReconstruct_GPUDevice_createBindGroup_original = GPUDevice.prototype.createBindGroup;
 var __WebGPUReconstruct_GPUCommandEncoder_finish_original = GPUCommandEncoder.prototype.finish;
 var __WebGPUReconstruct_GPUCommandEncoder_copyTextureToBuffer_original = GPUCommandEncoder.prototype.copyTextureToBuffer;
+var __WebGPUReconstruct_GPUCommandEncoder_beginRenderPass_original = GPUCommandEncoder.prototype.beginRenderPass;
+var __WebGPUReconstruct_GPURenderPassEncoder_setPipeline_original = GPURenderPassEncoder.prototype.setPipeline;
+var __WebGPUReconstruct_GPURenderPassEncoder_setBindGroup_original = GPURenderPassEncoder.prototype.setBindGroup;
+var __WebGPUReconstruct_GPURenderPassEncoder_draw_original = GPURenderPassEncoder.prototype.draw;
+var __WebGPUReconstruct_GPURenderPassEncoder_end_original = GPURenderPassEncoder.prototype.end;
 var __WebGPUReconstruct_GPUQueue_copyExternalImageToTexture_original = GPUQueue.prototype.copyExternalImageToTexture;
 var __WebGPUReconstruct_GPUQueue_submit_original = GPUQueue.prototype.submit;
 var __WebGPUReconstruct_GPUBuffer_mapAsync_original = GPUBuffer.prototype.mapAsync;
 var __WebGPUReconstruct_GPUBuffer_getMappedRange_original = GPUBuffer.prototype.getMappedRange;
 var __WebGPUReconstruct_GPUBuffer_unmap_original = GPUBuffer.prototype.unmap;
+var __WebGPUReconstruct_GPUTexture_createView_original = GPUTexture.prototype.createView;
+var __WebGPUReconstruct_GPURenderPipeline_getBindGroupLayout_original = GPURenderPipeline.prototype.getBindGroupLayout;
 
 // Functions used to store enums.
 // Generated code will be inserted here.
@@ -487,6 +498,86 @@ function __WebGPUReconstruct_requestAnimationFrame_wrapper(originalMethod, callb
     }
     
     originalMethod.call(this, callback);
+}
+
+function __WebGPUReconstruct_getExternalTextureBlitPipeline(device) {
+    if (device.__externalTextureBlitPipeline == undefined) {
+        const vertexWgsl =
+`
+struct VertexOutput {
+  @builtin(position) Position : vec4f,
+  @location(0) fragUV : vec2f,
+}
+
+@vertex
+fn main(
+  @builtin(vertex_index) VertexIndex : u32
+) -> VertexOutput {
+  var pos = array<vec2f, 3>(
+    vec2(-1.0, 3.0),
+    vec2(-1.0, -1.0),
+    vec2(3.0, -1.0)
+  );
+  var uv = array<vec2f, 3>(
+    vec2(0.0, -1.0),
+    vec2(0.0, 1.0),
+    vec2(2.0, 1.0)
+  );
+  
+  var output : VertexOutput;
+  output.Position = vec4f(pos[VertexIndex], 0.0, 1.0);
+  output.fragUV = uv[VertexIndex];
+
+  return output;
+}
+`;
+
+        const fragmentWgsl =
+`
+struct FSIn {
+  @location(0) uv : vec2f
+};
+
+@group(0) @binding(0) var mySampler: sampler;
+@group(0) @binding(1) var myTexture: texture_external;
+
+@fragment
+fn main(in : FSIn) -> @location(0) vec4f {
+  var color : vec4f = textureSampleBaseClampToEdge(myTexture, mySampler, in.uv);
+  return color;
+}
+`;
+
+        device.__externalTextureBlitPipeline = __WebGPUReconstruct_GPUDevice_createRenderPipeline_original.call(device, {
+            label: "External texture blit pipeline",
+            layout: "auto",
+            vertex: {
+                module: __WebGPUReconstruct_GPUDevice_createShaderModule_original.call(device, {
+                    code: vertexWgsl
+                })
+            },
+            fragment: {
+                module: __WebGPUReconstruct_GPUDevice_createShaderModule_original.call(device, {
+                    code: fragmentWgsl
+                }),
+                targets: [
+                    {
+                        format: "rgba8unorm"
+                    },
+                ]
+            }
+        });
+    }
+    
+    return device.__externalTextureBlitPipeline;
+}
+
+function __WebGPUReconstruct_getExternalTextureBlitSampler(device) {
+    if (device.__externalTextureBlitSampler == undefined) {
+        device.__externalTextureBlitSampler = __WebGPUReconstruct_GPUDevice_createSampler_original.call(device);
+    }
+    
+    return device.__externalTextureBlitSampler;
 }
 
 function __WebGPUReconstruct_GPUBuffer_unmap(originalMethod) {

@@ -635,7 +635,6 @@ delete[] data;
 
 add_custom_command(GPUDevice, "importExternalTexture", ["descriptor"], """
 __WebGPUReconstruct_DebugOutput("importExternalTexture");
-console.error("importExternalTexture is not supported. The external texture will be replaced with a black texture during replay.");
 __WebGPUReconstruct_file.writeUint32($COMMAND_ID);
 
 if (result.__id != undefined) {
@@ -661,13 +660,102 @@ if (descriptor.source instanceof HTMLVideoElement) {
 }
 __WebGPUReconstruct_file.writeUint32(width);
 __WebGPUReconstruct_file.writeUint32(height);
+
+// Allocate dummy texture to copy into.
+let dummyTexture = __WebGPUReconstruct_GPUDevice_createTexture_original.call(this, {
+    size: {
+        width: width,
+        height: height
+    },
+    format: "rgba8unorm",
+    usage: GPUTextureUsage.COPY_SRC | GPUTextureUsage.COPY_DST | GPUTextureUsage.RENDER_ATTACHMENT,
+});
+
+// Data layout
+let dataLayout = {
+    offset: 0,
+    bytesPerRow: width * 4,
+    rowsPerImage: height
+};
+
+// bytesPerRow needs to be 256 byte aligned.
+dataLayout.bytesPerRow = (Math.floor((dataLayout.bytesPerRow - 1) / 256) + 1) * 256;
+
+// Reserve area for the data.
+let dataLength = dataLayout.bytesPerRow * dataLayout.rowsPerImage;
+__WebGPUReconstruct_file.writeUint64(dataLength);
+let reserved = __WebGPUReconstruct_file.reserve(dataLength);
+
+// Allocate dummy buffer to copy into.
+let dummyBuffer = __WebGPUReconstruct_GPUDevice_createBuffer_original.call(this, {
+    size: dataLength,
+    usage: GPUBufferUsage.MAP_READ | GPUBufferUsage.COPY_DST,
+});
+
+let commandEncoder = __WebGPUReconstruct_GPUDevice_createCommandEncoder_original.call(this);
+
+// Copy external image into dummy texture.
+let pipeline = __WebGPUReconstruct_getExternalTextureBlitPipeline(this);
+let sampler = __WebGPUReconstruct_getExternalTextureBlitSampler(this);
+let bindGroup = __WebGPUReconstruct_GPUDevice_createBindGroup_original.call(this, {
+    layout: __WebGPUReconstruct_GPURenderPipeline_getBindGroupLayout_original.call(pipeline, 0),
+    entries: [
+        {
+            binding: 0,
+            resource: sampler
+        },
+        {
+            binding: 1,
+            resource: result
+        }
+    ]
+});
+
+let renderPass = __WebGPUReconstruct_GPUCommandEncoder_beginRenderPass_original.call(commandEncoder, {
+    colorAttachments: [
+        {
+            view: __WebGPUReconstruct_GPUTexture_createView_original.call(dummyTexture),
+            loadOp: "clear",
+            storeOp: "store"
+        }
+    ]
+});
+__WebGPUReconstruct_GPURenderPassEncoder_setPipeline_original.call(renderPass, pipeline);
+__WebGPUReconstruct_GPURenderPassEncoder_setBindGroup_original.call(renderPass, 0, bindGroup);
+__WebGPUReconstruct_GPURenderPassEncoder_draw_original.call(renderPass, 3);
+__WebGPUReconstruct_GPURenderPassEncoder_end_original.call(renderPass);
+
+// Copy texture data into buffer.
+__WebGPUReconstruct_GPUCommandEncoder_copyTextureToBuffer_original.call(commandEncoder,
+    {
+        texture: dummyTexture,
+    },
+    {
+        buffer: dummyBuffer,
+        bytesPerRow: dataLayout.bytesPerRow,
+        rowsPerImage: dataLayout.rowsPerImage,
+    },
+    {
+        width: width,
+        height: height
+    });
+let commandBuffer = __WebGPUReconstruct_GPUCommandEncoder_finish_original.call(commandEncoder);
+__WebGPUReconstruct_GPUQueue_submit_original.call(this.queue, [commandBuffer]);
+
+// Map buffer.
+__WebGPUReconstruct_GPUBuffer_mapAsync_original.call(dummyBuffer, GPUMapMode.READ).then(() => {
+    // Read back data and write to reserved area.
+    let bufferData = new Uint8Array(__WebGPUReconstruct_GPUBuffer_getMappedRange_original.call(dummyBuffer));
+    __WebGPUReconstruct_file.writeReserved(reserved, bufferData);
+    __WebGPUReconstruct_GPUBuffer_unmap_original.call(dummyBuffer);
+});
 """, """
 DebugOutput("importExternalTexture\\n");
 if (reader.ReadUint8()) {
     const uint32_t id = reader.ReadUint32();
 
     WGPUTextureDescriptor desc = {};
-    desc.usage = WGPUTextureUsage_TextureBinding;
+    desc.usage = WGPUTextureUsage_TextureBinding | WGPUTextureUsage_CopyDst;
     desc.dimension = WGPUTextureDimension_2D;
     desc.size.width = reader.ReadUint32();
     desc.size.height = reader.ReadUint32();
@@ -679,6 +767,25 @@ if (reader.ReadUint8()) {
     ExternalTexture& externalTexture = externalTextures[id];
     externalTexture.texture = wgpuDeviceCreateTexture(device.GetDevice(), &desc);
     externalTexture.textureView = wgpuTextureCreateView(externalTexture.texture, nullptr);
+
+    WGPUTexelCopyTextureInfo destination = {};
+    destination.texture = externalTexture.texture;
+    destination.aspect = WGPUTextureAspect_All;
+
+    WGPUTexelCopyBufferLayout dataLayout = {};
+    dataLayout.bytesPerRow = desc.size.width * 4;
+    // bytesPerRow needs to be 256 byte aligned.
+    dataLayout.bytesPerRow = (((dataLayout.bytesPerRow - 1) / 256) + 1) * 256;
+    dataLayout.rowsPerImage = desc.size.height;
+
+    const uint64_t dataLength = reader.ReadUint64();
+    uint8_t* data = new uint8_t[dataLength];
+    reader.ReadBuffer(data, dataLength);
+
+    wgpuQueueWriteTexture(device.GetQueue(), &destination, data, dataLength, &dataLayout, &desc.size);
+
+    // Cleanup
+    delete[] data;
 }
 """)
 
