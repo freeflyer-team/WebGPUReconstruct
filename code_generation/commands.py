@@ -574,7 +574,7 @@ if (dataLayout.bytesPerRow == 0) {
 }
 
 // Allocate dummy texture to copy into.
-let dummyTexture = __WebGPUReconstruct_GPUDevice_createTexture_original.call(__WebGPUReconstruct_device, {
+let dummyTexture = __WebGPUReconstruct_GPUDevice_createTexture_original.call(this.__device, {
     size: size,
     dimension: destination.texture.dimension,
     format: destination.texture.format,
@@ -582,13 +582,13 @@ let dummyTexture = __WebGPUReconstruct_GPUDevice_createTexture_original.call(__W
 });
 
 // Allocate dummy buffer to copy into.
-let dummyBuffer = __WebGPUReconstruct_GPUDevice_createBuffer_original.call(__WebGPUReconstruct_device, {
+let dummyBuffer = __WebGPUReconstruct_GPUDevice_createBuffer_original.call(this.__device, {
     size: dataLength,
     usage: GPUBufferUsage.MAP_READ | GPUBufferUsage.COPY_DST,
 });
 
 // Copy external image into dummy texture.
-__WebGPUReconstruct_GPUQueue_copyExternalImageToTexture_original.call(__WebGPUReconstruct_device.queue, source,
+__WebGPUReconstruct_GPUQueue_copyExternalImageToTexture_original.call(this.__device.queue, source,
     {
         texture: dummyTexture,
         aspect: destination.aspect,
@@ -598,7 +598,7 @@ __WebGPUReconstruct_GPUQueue_copyExternalImageToTexture_original.call(__WebGPURe
     size);
 
 // Copy texture data into buffer.
-let commandEncoder = __WebGPUReconstruct_GPUDevice_createCommandEncoder_original.call(__WebGPUReconstruct_device);
+let commandEncoder = __WebGPUReconstruct_GPUDevice_createCommandEncoder_original.call(this.__device);
 __WebGPUReconstruct_GPUCommandEncoder_copyTextureToBuffer_original.call(commandEncoder,
     {
         texture: dummyTexture,
@@ -610,7 +610,7 @@ __WebGPUReconstruct_GPUCommandEncoder_copyTextureToBuffer_original.call(commandE
         rowsPerImage: dataLayout.rowsPerImage,
     }, size);
 let commandBuffer = __WebGPUReconstruct_GPUCommandEncoder_finish_original.call(commandEncoder);
-__WebGPUReconstruct_GPUQueue_submit_original.call(__WebGPUReconstruct_device.queue, [commandBuffer]);
+__WebGPUReconstruct_GPUQueue_submit_original.call(this, [commandBuffer]);
 
 // Map buffer.
 __WebGPUReconstruct_GPUBuffer_mapAsync_original.call(dummyBuffer, GPUMapMode.READ).then(() => {

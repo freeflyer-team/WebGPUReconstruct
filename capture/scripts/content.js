@@ -395,9 +395,6 @@ var __WebGPUReconstruct_supportedFeatures = new Set([
     "subgroups",
 ]);
 
-// Store the device so it can be used to create textures and buffers in copyExternalImageToTexture.
-var __WebGPUReconstruct_device;
-
 function __WebGPUReconstruct_GPUAdapter_requestDevice(originalMethod, descriptor) {
     __WebGPUReconstruct_DebugOutput("requestDevice");
     __WebGPUReconstruct_file.writeUint32(5);
@@ -426,7 +423,8 @@ function __WebGPUReconstruct_GPUAdapter_requestDevice(originalMethod, descriptor
     __WebGPUReconstruct_file.writeUint32(this.info.subgroupMaxSize);
     
     return originalMethod.call(this, overrideDescriptor).then((device) => {
-        __WebGPUReconstruct_device = device;
+        // Store the device so it can be used to create textures and buffers in copyExternalImageToTexture.
+        device.queue.__device = device;
         return device;
     });
 }
