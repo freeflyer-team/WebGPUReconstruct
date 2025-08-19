@@ -149,10 +149,10 @@ function __WebGPUReconstruct_DebugOutput(output) {
     }
 }
 
-var __WebGPUReconstruct_file = new __WebGPUReconstruct_Uint8Writer();
+let __WebGPUReconstruct_file = new __WebGPUReconstruct_Uint8Writer();
 
 // Used to add an ID to WebGPU objects for tracking purposes.
-var __WebGPUReconstruct_nextId = 1;
+let __WebGPUReconstruct_nextId = 1;
 function __WebGPUReconstruct_AddId(object) {
     object.__id = __WebGPUReconstruct_nextId
     __WebGPUReconstruct_nextId += 1
@@ -375,7 +375,7 @@ function __WebGPUReconstruct_get_bytes_per_block(format) {
 
 // Features supported by WebGPUReconstruct. We will pretend the adapter doesn't support any other features.
 // TODO: dual-source-blending, texture-formats-tier1, texture-formats-tier2
-var __WebGPUReconstruct_supportedFeatures = new Set([
+const __WebGPUReconstruct_supportedFeatures = new Set([
     "core-features-and-limits",
     "depth-clip-control",
     "depth32float-stencil8",
@@ -430,27 +430,27 @@ function __WebGPUReconstruct_GPUAdapter_requestDevice(originalMethod, descriptor
 }
 
 // Store original methods so we can call them without capturing.
-var __WebGPUReconstruct_GPUDevice_createTexture_original = GPUDevice.prototype.createTexture;
-var __WebGPUReconstruct_GPUDevice_createSampler_original = GPUDevice.prototype.createSampler;
-var __WebGPUReconstruct_GPUDevice_createBuffer_original = GPUDevice.prototype.createBuffer;
-var __WebGPUReconstruct_GPUDevice_createCommandEncoder_original = GPUDevice.prototype.createCommandEncoder;
-var __WebGPUReconstruct_GPUDevice_createShaderModule_original = GPUDevice.prototype.createShaderModule;
-var __WebGPUReconstruct_GPUDevice_createRenderPipeline_original = GPUDevice.prototype.createRenderPipeline;
-var __WebGPUReconstruct_GPUDevice_createBindGroup_original = GPUDevice.prototype.createBindGroup;
-var __WebGPUReconstruct_GPUCommandEncoder_finish_original = GPUCommandEncoder.prototype.finish;
-var __WebGPUReconstruct_GPUCommandEncoder_copyTextureToBuffer_original = GPUCommandEncoder.prototype.copyTextureToBuffer;
-var __WebGPUReconstruct_GPUCommandEncoder_beginRenderPass_original = GPUCommandEncoder.prototype.beginRenderPass;
-var __WebGPUReconstruct_GPURenderPassEncoder_setPipeline_original = GPURenderPassEncoder.prototype.setPipeline;
-var __WebGPUReconstruct_GPURenderPassEncoder_setBindGroup_original = GPURenderPassEncoder.prototype.setBindGroup;
-var __WebGPUReconstruct_GPURenderPassEncoder_draw_original = GPURenderPassEncoder.prototype.draw;
-var __WebGPUReconstruct_GPURenderPassEncoder_end_original = GPURenderPassEncoder.prototype.end;
-var __WebGPUReconstruct_GPUQueue_copyExternalImageToTexture_original = GPUQueue.prototype.copyExternalImageToTexture;
-var __WebGPUReconstruct_GPUQueue_submit_original = GPUQueue.prototype.submit;
-var __WebGPUReconstruct_GPUBuffer_mapAsync_original = GPUBuffer.prototype.mapAsync;
-var __WebGPUReconstruct_GPUBuffer_getMappedRange_original = GPUBuffer.prototype.getMappedRange;
-var __WebGPUReconstruct_GPUBuffer_unmap_original = GPUBuffer.prototype.unmap;
-var __WebGPUReconstruct_GPUTexture_createView_original = GPUTexture.prototype.createView;
-var __WebGPUReconstruct_GPURenderPipeline_getBindGroupLayout_original = GPURenderPipeline.prototype.getBindGroupLayout;
+const __WebGPUReconstruct_GPUDevice_createTexture_original = GPUDevice.prototype.createTexture;
+const __WebGPUReconstruct_GPUDevice_createSampler_original = GPUDevice.prototype.createSampler;
+const __WebGPUReconstruct_GPUDevice_createBuffer_original = GPUDevice.prototype.createBuffer;
+const __WebGPUReconstruct_GPUDevice_createCommandEncoder_original = GPUDevice.prototype.createCommandEncoder;
+const __WebGPUReconstruct_GPUDevice_createShaderModule_original = GPUDevice.prototype.createShaderModule;
+const __WebGPUReconstruct_GPUDevice_createRenderPipeline_original = GPUDevice.prototype.createRenderPipeline;
+const __WebGPUReconstruct_GPUDevice_createBindGroup_original = GPUDevice.prototype.createBindGroup;
+const __WebGPUReconstruct_GPUCommandEncoder_finish_original = GPUCommandEncoder.prototype.finish;
+const __WebGPUReconstruct_GPUCommandEncoder_copyTextureToBuffer_original = GPUCommandEncoder.prototype.copyTextureToBuffer;
+const __WebGPUReconstruct_GPUCommandEncoder_beginRenderPass_original = GPUCommandEncoder.prototype.beginRenderPass;
+const __WebGPUReconstruct_GPURenderPassEncoder_setPipeline_original = GPURenderPassEncoder.prototype.setPipeline;
+const __WebGPUReconstruct_GPURenderPassEncoder_setBindGroup_original = GPURenderPassEncoder.prototype.setBindGroup;
+const __WebGPUReconstruct_GPURenderPassEncoder_draw_original = GPURenderPassEncoder.prototype.draw;
+const __WebGPUReconstruct_GPURenderPassEncoder_end_original = GPURenderPassEncoder.prototype.end;
+const __WebGPUReconstruct_GPUQueue_copyExternalImageToTexture_original = GPUQueue.prototype.copyExternalImageToTexture;
+const __WebGPUReconstruct_GPUQueue_submit_original = GPUQueue.prototype.submit;
+const __WebGPUReconstruct_GPUBuffer_mapAsync_original = GPUBuffer.prototype.mapAsync;
+const __WebGPUReconstruct_GPUBuffer_getMappedRange_original = GPUBuffer.prototype.getMappedRange;
+const __WebGPUReconstruct_GPUBuffer_unmap_original = GPUBuffer.prototype.unmap;
+const __WebGPUReconstruct_GPUTexture_createView_original = GPUTexture.prototype.createView;
+const __WebGPUReconstruct_GPURenderPipeline_getBindGroupLayout_original = GPURenderPipeline.prototype.getBindGroupLayout;
 
 // Functions used to store enums.
 // Generated code will be inserted here.
@@ -479,7 +479,7 @@ function __WebGPUReconstruct_GPU_requestAdapter(originalMethod, options) {
     });
 }
 
-var __WebGPUReconstruct_firstAnimationFrame = true;
+let __WebGPUReconstruct_firstAnimationFrame = true;
 
 function __WebGPUReconstruct_requestAnimationFrame_callback(timestamp) {
     __WebGPUReconstruct_file.writeUint32(2);
@@ -597,7 +597,7 @@ function __WebGPUReconstruct_GPUBuffer_unmap(originalMethod) {
             __WebGPUReconstruct_file.writeUint64(this.__mappedRanges[range][0]);
             let size = this.__mappedRanges[range][1];
             __WebGPUReconstruct_file.writeUint64(size);
-            var bufferContents = new Uint8Array(this.__mappedRanges[range][2]);
+            let bufferContents = new Uint8Array(this.__mappedRanges[range][2]);
             for (let i = 0; i < size; i += 1) {
                 __WebGPUReconstruct_file.writeUint8(bufferContents[i]);
             }
@@ -611,13 +611,13 @@ function __WebGPUReconstruct_GPUBuffer_unmap(originalMethod) {
 
 function __WebGPUReconstruct_GPUDevice_createRenderPipelineAsync(originalMethod, descriptor) {
     __WebGPUReconstruct_DebugOutput("createRenderPipelineAsync");
-    var pipeline = this.createRenderPipeline(descriptor);
+    let pipeline = this.createRenderPipeline(descriptor);
     return new Promise((resolve, reject) => { resolve(pipeline); });
 }
 
 function __WebGPUReconstruct_GPUDevice_createComputePipelineAsync(originalMethod, descriptor) {
     __WebGPUReconstruct_DebugOutput("createComputePipelineAsync");
-    var pipeline = this.createComputePipeline(descriptor);
+    let pipeline = this.createComputePipeline(descriptor);
     return new Promise((resolve, reject) => { resolve(pipeline); });
 }
 
@@ -662,11 +662,11 @@ $WRAP_COMMANDS
     }
 }
 
-var __webGPUReconstruct = new __WebGPUReconstruct();
+let __webGPUReconstruct = new __WebGPUReconstruct();
 
 // Listener that listens for the "capture" button to be pressed.
 // When this happens, finish up the capture and store it to file.
-var __WebGPUReconstruct_firstCapture = true;
+let __WebGPUReconstruct_firstCapture = true;
 document.addEventListener('__WebGPUReconstruct_saveCapture', function() {
     if (!__WebGPUReconstruct_firstCapture) {
         console.error("You need to reload the page between captures.");
