@@ -449,7 +449,9 @@ const __WebGPUReconstruct_GPUQueue_submit_original = GPUQueue.prototype.submit;
 const __WebGPUReconstruct_GPUBuffer_mapAsync_original = GPUBuffer.prototype.mapAsync;
 const __WebGPUReconstruct_GPUBuffer_getMappedRange_original = GPUBuffer.prototype.getMappedRange;
 const __WebGPUReconstruct_GPUBuffer_unmap_original = GPUBuffer.prototype.unmap;
+const __WebGPUReconstruct_GPUBuffer_destroy_original = GPUBuffer.prototype.destroy;
 const __WebGPUReconstruct_GPUTexture_createView_original = GPUTexture.prototype.createView;
+const __WebGPUReconstruct_GPUTexture_destroy_original = GPUTexture.prototype.destroy;
 const __WebGPUReconstruct_GPURenderPipeline_getBindGroupLayout_original = GPURenderPipeline.prototype.getBindGroupLayout;
 
 // Functions used to store enums.

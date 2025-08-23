@@ -618,6 +618,8 @@ __WebGPUReconstruct_GPUBuffer_mapAsync_original.call(dummyBuffer, GPUMapMode.REA
     let bufferData = new Uint8Array(__WebGPUReconstruct_GPUBuffer_getMappedRange_original.call(dummyBuffer));
     __WebGPUReconstruct_file.writeReserved(reserved, bufferData);
     __WebGPUReconstruct_GPUBuffer_unmap_original.call(dummyBuffer);
+    __WebGPUReconstruct_GPUTexture_destroy_original.call(dummyTexture);
+    __WebGPUReconstruct_GPUBuffer_destroy_original.call(dummyBuffer);
 });
 """, """
 DebugOutput("copyExternalImageToTexture\\n");
@@ -748,6 +750,8 @@ __WebGPUReconstruct_GPUBuffer_mapAsync_original.call(dummyBuffer, GPUMapMode.REA
     let bufferData = new Uint8Array(__WebGPUReconstruct_GPUBuffer_getMappedRange_original.call(dummyBuffer));
     __WebGPUReconstruct_file.writeReserved(reserved, bufferData);
     __WebGPUReconstruct_GPUBuffer_unmap_original.call(dummyBuffer);
+    __WebGPUReconstruct_GPUTexture_destroy_original.call(dummyTexture);
+    __WebGPUReconstruct_GPUBuffer_destroy_original.call(dummyBuffer);
 });
 """, """
 DebugOutput("importExternalTexture\\n");
