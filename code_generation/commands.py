@@ -2,6 +2,7 @@
 commandId = 100
 captureCommandsString = ""
 wrapCommandsString = ""
+resetCommandsString = ""
 runCommandsString = ""
 
 from code_generation.struct_types import *
@@ -11,6 +12,7 @@ def add_custom_command(classType, methodName, arguments, captureCode, replayCode
     global commandId
     global captureCommandsString
     global wrapCommandsString
+    global resetCommandsString
     global runCommandsString
     
     commandId += 1
@@ -21,6 +23,7 @@ def add_custom_command(classType, methodName, arguments, captureCode, replayCode
     captureCommandsString += ") {\n" + captureCode.replace("$COMMAND_ID", str(commandId)) + "}\n\n"
     
     wrapCommandsString += '        ' + classType.webName + ".prototype." + methodName + " = this.wrapMethodPost(" + classType.webName + ".prototype." + methodName + ", __WebGPUReconstruct_" + classType.webName + "_" + methodName + ', "' + classType.webName + "_" + methodName + '");\n'
+    resetCommandsString += '        ' + classType.webName + ".prototype." + methodName + " = this." + classType.webName + "_" + methodName + '_original;\n'
     
     runCommandsString += "case " + str(commandId) + ":\n{\n" + replayCode + "break;\n}\n"
 

@@ -639,6 +639,24 @@ $WRAP_COMMANDS
             return hook.call(this, originalMethod, ...args);
         }
     }
+
+    finishCapture() {
+        // End of last frame.
+        __WebGPUReconstruct_file.writeUint32(2);
+        
+        // End of capture.
+        __WebGPUReconstruct_file.writeUint32(0);
+
+        // Reset wrapped functions.
+        GPUAdapter.prototype.requestDevice = this.GPUAdapter_requestDevice_original;
+        GPU.prototype.requestAdapter = this.GPU_requestAdapter_original;
+        requestAnimationFrame = this.requestAnimationFrame_original;
+        GPUBuffer.prototype.unmap = this.GPUBuffer_unmap_original;
+        GPUDevice.prototype.createRenderPipelineAsync = this.GPUDevice_createRenderPipelineAsync_original;
+        GPUDevice.prototype.createComputePipelineAsync = this.GPUDevice_createComputePipelineAsync_original;
+
+$RESET_COMMANDS
+    }
 }
 
 let __webGPUReconstruct = new __WebGPUReconstruct();
@@ -652,12 +670,8 @@ document.addEventListener('__WebGPUReconstruct_saveCapture', function() {
         return;
     }
     __WebGPUReconstruct_firstCapture = false;
+    __webGPUReconstruct.finishCapture();
     
-    // End of last frame.
-    __WebGPUReconstruct_file.writeUint32(2);
-    
-    // End of capture.
-    __WebGPUReconstruct_file.writeUint32(0);
     const blob = new Blob(__WebGPUReconstruct_file.arrays);
     
     // Create and click on a download link to save capture.
