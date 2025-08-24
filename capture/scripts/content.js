@@ -429,31 +429,6 @@ function __WebGPUReconstruct_GPUAdapter_requestDevice(originalMethod, descriptor
     });
 }
 
-// Store original methods so we can call them without capturing.
-const __WebGPUReconstruct_GPUDevice_createTexture_original = GPUDevice.prototype.createTexture;
-const __WebGPUReconstruct_GPUDevice_createSampler_original = GPUDevice.prototype.createSampler;
-const __WebGPUReconstruct_GPUDevice_createBuffer_original = GPUDevice.prototype.createBuffer;
-const __WebGPUReconstruct_GPUDevice_createCommandEncoder_original = GPUDevice.prototype.createCommandEncoder;
-const __WebGPUReconstruct_GPUDevice_createShaderModule_original = GPUDevice.prototype.createShaderModule;
-const __WebGPUReconstruct_GPUDevice_createRenderPipeline_original = GPUDevice.prototype.createRenderPipeline;
-const __WebGPUReconstruct_GPUDevice_createBindGroup_original = GPUDevice.prototype.createBindGroup;
-const __WebGPUReconstruct_GPUCommandEncoder_finish_original = GPUCommandEncoder.prototype.finish;
-const __WebGPUReconstruct_GPUCommandEncoder_copyTextureToBuffer_original = GPUCommandEncoder.prototype.copyTextureToBuffer;
-const __WebGPUReconstruct_GPUCommandEncoder_beginRenderPass_original = GPUCommandEncoder.prototype.beginRenderPass;
-const __WebGPUReconstruct_GPURenderPassEncoder_setPipeline_original = GPURenderPassEncoder.prototype.setPipeline;
-const __WebGPUReconstruct_GPURenderPassEncoder_setBindGroup_original = GPURenderPassEncoder.prototype.setBindGroup;
-const __WebGPUReconstruct_GPURenderPassEncoder_draw_original = GPURenderPassEncoder.prototype.draw;
-const __WebGPUReconstruct_GPURenderPassEncoder_end_original = GPURenderPassEncoder.prototype.end;
-const __WebGPUReconstruct_GPUQueue_copyExternalImageToTexture_original = GPUQueue.prototype.copyExternalImageToTexture;
-const __WebGPUReconstruct_GPUQueue_submit_original = GPUQueue.prototype.submit;
-const __WebGPUReconstruct_GPUBuffer_mapAsync_original = GPUBuffer.prototype.mapAsync;
-const __WebGPUReconstruct_GPUBuffer_getMappedRange_original = GPUBuffer.prototype.getMappedRange;
-const __WebGPUReconstruct_GPUBuffer_unmap_original = GPUBuffer.prototype.unmap;
-const __WebGPUReconstruct_GPUBuffer_destroy_original = GPUBuffer.prototype.destroy;
-const __WebGPUReconstruct_GPUTexture_createView_original = GPUTexture.prototype.createView;
-const __WebGPUReconstruct_GPUTexture_destroy_original = GPUTexture.prototype.destroy;
-const __WebGPUReconstruct_GPURenderPipeline_getBindGroupLayout_original = GPURenderPipeline.prototype.getBindGroupLayout;
-
 // Functions used to store enums.
 // Generated code will be inserted here.
 $ENUM_SAVE_FUNCTIONS
@@ -548,16 +523,16 @@ fn main(in : FSIn) -> @location(0) vec4f {
 }
 `;
 
-        device.__externalTextureBlitPipeline = __WebGPUReconstruct_GPUDevice_createRenderPipeline_original.call(device, {
+        device.__externalTextureBlitPipeline = __webGPUReconstruct.GPUDevice_createRenderPipeline_original.call(device, {
             label: "External texture blit pipeline",
             layout: "auto",
             vertex: {
-                module: __WebGPUReconstruct_GPUDevice_createShaderModule_original.call(device, {
+                module: __webGPUReconstruct.GPUDevice_createShaderModule_original.call(device, {
                     code: vertexWgsl
                 })
             },
             fragment: {
-                module: __WebGPUReconstruct_GPUDevice_createShaderModule_original.call(device, {
+                module: __webGPUReconstruct.GPUDevice_createShaderModule_original.call(device, {
                     code: fragmentWgsl
                 }),
                 targets: [
@@ -574,7 +549,7 @@ fn main(in : FSIn) -> @location(0) vec4f {
 
 function __WebGPUReconstruct_getExternalTextureBlitSampler(device) {
     if (device.__externalTextureBlitSampler == undefined) {
-        device.__externalTextureBlitSampler = __WebGPUReconstruct_GPUDevice_createSampler_original.call(device);
+        device.__externalTextureBlitSampler = __webGPUReconstruct.GPUDevice_createSampler_original.call(device);
     }
     
     return device.__externalTextureBlitSampler;
@@ -632,17 +607,18 @@ class __WebGPUReconstruct {
         __WebGPUReconstruct_file.writeUint32($VERSION_MAJOR);
         __WebGPUReconstruct_file.writeUint32($VERSION_MINOR);
         
-        GPUAdapter.prototype.requestDevice = this.wrapMethodOriginalAsArgument(GPUAdapter.prototype.requestDevice, __WebGPUReconstruct_GPUAdapter_requestDevice);
-        GPU.prototype.requestAdapter = this.wrapMethodOriginalAsArgument(GPU.prototype.requestAdapter, __WebGPUReconstruct_GPU_requestAdapter);
-        requestAnimationFrame = this.wrapMethodOriginalAsArgument(requestAnimationFrame, __WebGPUReconstruct_requestAnimationFrame_wrapper);
-        GPUBuffer.prototype.unmap = this.wrapMethodOriginalAsArgument(GPUBuffer.prototype.unmap, __WebGPUReconstruct_GPUBuffer_unmap);
-        GPUDevice.prototype.createRenderPipelineAsync = this.wrapMethodOriginalAsArgument(GPUDevice.prototype.createRenderPipelineAsync, __WebGPUReconstruct_GPUDevice_createRenderPipelineAsync);
-        GPUDevice.prototype.createComputePipelineAsync = this.wrapMethodOriginalAsArgument(GPUDevice.prototype.createComputePipelineAsync, __WebGPUReconstruct_GPUDevice_createComputePipelineAsync);
-        
+        GPUAdapter.prototype.requestDevice = this.wrapMethodPre(GPUAdapter.prototype.requestDevice, __WebGPUReconstruct_GPUAdapter_requestDevice, "GPUAdapter_requestDevice");
+        GPU.prototype.requestAdapter = this.wrapMethodPre(GPU.prototype.requestAdapter, __WebGPUReconstruct_GPU_requestAdapter, "GPU_requestAdapter");
+        requestAnimationFrame = this.wrapMethodPre(requestAnimationFrame, __WebGPUReconstruct_requestAnimationFrame_wrapper, "requestAnimationFrame");
+        GPUBuffer.prototype.unmap = this.wrapMethodPre(GPUBuffer.prototype.unmap, __WebGPUReconstruct_GPUBuffer_unmap, "GPUBuffer_unmap");
+        GPUDevice.prototype.createRenderPipelineAsync = this.wrapMethodPre(GPUDevice.prototype.createRenderPipelineAsync, __WebGPUReconstruct_GPUDevice_createRenderPipelineAsync, "GPUDevice_createRenderPipelineAsync");
+        GPUDevice.prototype.createComputePipelineAsync = this.wrapMethodPre(GPUDevice.prototype.createComputePipelineAsync, __WebGPUReconstruct_GPUDevice_createComputePipelineAsync, "GPUDevice_createComputePipelineAsync");
+
 $WRAP_COMMANDS
     }
     
-    wrapMethod(originalMethod, hook) {
+    wrapMethodPost(originalMethod, hook, originalName) {
+        this[originalName + "_original"] = originalMethod;
         const reconstruct = this;
         return function() {
             const object = this;
@@ -656,7 +632,8 @@ $WRAP_COMMANDS
         }
     }
     
-    wrapMethodOriginalAsArgument(originalMethod, hook) {
+    wrapMethodPre(originalMethod, hook, originalName) {
+        this[originalName + "_original"] = originalMethod;
         return function() {
             const args = [...arguments];
             return hook.call(this, originalMethod, ...args);

@@ -20,7 +20,7 @@ def add_custom_command(classType, methodName, arguments, captureCode, replayCode
         captureCommandsString += ", " + arg
     captureCommandsString += ") {\n" + captureCode.replace("$COMMAND_ID", str(commandId)) + "}\n\n"
     
-    wrapCommandsString += '        ' + classType.webName + ".prototype." + methodName + " = this.wrapMethod(" + classType.webName + ".prototype." + methodName + ", __WebGPUReconstruct_" + classType.webName + "_" + methodName + ");\n"
+    wrapCommandsString += '        ' + classType.webName + ".prototype." + methodName + " = this.wrapMethodPost(" + classType.webName + ".prototype." + methodName + ", __WebGPUReconstruct_" + classType.webName + "_" + methodName + ', "' + classType.webName + "_" + methodName + '");\n'
     
     runCommandsString += "case " + str(commandId) + ":\n{\n" + replayCode + "break;\n}\n"
 
@@ -574,7 +574,7 @@ if (dataLayout.bytesPerRow == 0) {
 }
 
 // Allocate dummy texture to copy into.
-let dummyTexture = __WebGPUReconstruct_GPUDevice_createTexture_original.call(this.__device, {
+let dummyTexture = __webGPUReconstruct.GPUDevice_createTexture_original.call(this.__device, {
     size: size,
     dimension: destination.texture.dimension,
     format: destination.texture.format,
@@ -582,13 +582,13 @@ let dummyTexture = __WebGPUReconstruct_GPUDevice_createTexture_original.call(thi
 });
 
 // Allocate dummy buffer to copy into.
-let dummyBuffer = __WebGPUReconstruct_GPUDevice_createBuffer_original.call(this.__device, {
+let dummyBuffer = __webGPUReconstruct.GPUDevice_createBuffer_original.call(this.__device, {
     size: dataLength,
     usage: GPUBufferUsage.MAP_READ | GPUBufferUsage.COPY_DST,
 });
 
 // Copy external image into dummy texture.
-__WebGPUReconstruct_GPUQueue_copyExternalImageToTexture_original.call(this.__device.queue, source,
+__webGPUReconstruct.GPUQueue_copyExternalImageToTexture_original.call(this.__device.queue, source,
     {
         texture: dummyTexture,
         aspect: destination.aspect,
@@ -598,8 +598,8 @@ __WebGPUReconstruct_GPUQueue_copyExternalImageToTexture_original.call(this.__dev
     size);
 
 // Copy texture data into buffer.
-let commandEncoder = __WebGPUReconstruct_GPUDevice_createCommandEncoder_original.call(this.__device);
-__WebGPUReconstruct_GPUCommandEncoder_copyTextureToBuffer_original.call(commandEncoder,
+let commandEncoder = __webGPUReconstruct.GPUDevice_createCommandEncoder_original.call(this.__device);
+__webGPUReconstruct.GPUCommandEncoder_copyTextureToBuffer_original.call(commandEncoder,
     {
         texture: dummyTexture,
         aspect: destination.aspect,
@@ -609,17 +609,17 @@ __WebGPUReconstruct_GPUCommandEncoder_copyTextureToBuffer_original.call(commandE
         bytesPerRow: dataLayout.bytesPerRow,
         rowsPerImage: dataLayout.rowsPerImage,
     }, size);
-let commandBuffer = __WebGPUReconstruct_GPUCommandEncoder_finish_original.call(commandEncoder);
-__WebGPUReconstruct_GPUQueue_submit_original.call(this, [commandBuffer]);
+let commandBuffer = __webGPUReconstruct.GPUCommandEncoder_finish_original.call(commandEncoder);
+__webGPUReconstruct.GPUQueue_submit_original.call(this, [commandBuffer]);
 
 // Map buffer.
-__WebGPUReconstruct_GPUBuffer_mapAsync_original.call(dummyBuffer, GPUMapMode.READ).then(() => {
+__webGPUReconstruct.GPUBuffer_mapAsync_original.call(dummyBuffer, GPUMapMode.READ).then(() => {
     // Read back data and write to reserved area.
-    let bufferData = new Uint8Array(__WebGPUReconstruct_GPUBuffer_getMappedRange_original.call(dummyBuffer));
+    let bufferData = new Uint8Array(__webGPUReconstruct.GPUBuffer_getMappedRange_original.call(dummyBuffer));
     __WebGPUReconstruct_file.writeReserved(reserved, bufferData);
-    __WebGPUReconstruct_GPUBuffer_unmap_original.call(dummyBuffer);
-    __WebGPUReconstruct_GPUTexture_destroy_original.call(dummyTexture);
-    __WebGPUReconstruct_GPUBuffer_destroy_original.call(dummyBuffer);
+    __webGPUReconstruct.GPUBuffer_unmap_original.call(dummyBuffer);
+    dummyTexture.destroy();
+    dummyBuffer.destroy();
 });
 """, """
 DebugOutput("copyExternalImageToTexture\\n");
@@ -664,7 +664,7 @@ __WebGPUReconstruct_file.writeUint32(width);
 __WebGPUReconstruct_file.writeUint32(height);
 
 // Allocate dummy texture to copy into.
-let dummyTexture = __WebGPUReconstruct_GPUDevice_createTexture_original.call(this, {
+let dummyTexture = __webGPUReconstruct.GPUDevice_createTexture_original.call(this, {
     size: {
         width: width,
         height: height
@@ -689,18 +689,18 @@ __WebGPUReconstruct_file.writeUint64(dataLength);
 let reserved = __WebGPUReconstruct_file.reserve(dataLength);
 
 // Allocate dummy buffer to copy into.
-let dummyBuffer = __WebGPUReconstruct_GPUDevice_createBuffer_original.call(this, {
+let dummyBuffer = __webGPUReconstruct.GPUDevice_createBuffer_original.call(this, {
     size: dataLength,
     usage: GPUBufferUsage.MAP_READ | GPUBufferUsage.COPY_DST,
 });
 
-let commandEncoder = __WebGPUReconstruct_GPUDevice_createCommandEncoder_original.call(this);
+let commandEncoder = __webGPUReconstruct.GPUDevice_createCommandEncoder_original.call(this);
 
 // Copy external image into dummy texture.
 let pipeline = __WebGPUReconstruct_getExternalTextureBlitPipeline(this);
 let sampler = __WebGPUReconstruct_getExternalTextureBlitSampler(this);
-let bindGroup = __WebGPUReconstruct_GPUDevice_createBindGroup_original.call(this, {
-    layout: __WebGPUReconstruct_GPURenderPipeline_getBindGroupLayout_original.call(pipeline, 0),
+let bindGroup = __webGPUReconstruct.GPUDevice_createBindGroup_original.call(this, {
+    layout: __webGPUReconstruct.GPURenderPipeline_getBindGroupLayout_original.call(pipeline, 0),
     entries: [
         {
             binding: 0,
@@ -713,22 +713,22 @@ let bindGroup = __WebGPUReconstruct_GPUDevice_createBindGroup_original.call(this
     ]
 });
 
-let renderPass = __WebGPUReconstruct_GPUCommandEncoder_beginRenderPass_original.call(commandEncoder, {
+let renderPass = __webGPUReconstruct.GPUCommandEncoder_beginRenderPass_original.call(commandEncoder, {
     colorAttachments: [
         {
-            view: __WebGPUReconstruct_GPUTexture_createView_original.call(dummyTexture),
+            view: __webGPUReconstruct.GPUTexture_createView_original.call(dummyTexture),
             loadOp: "clear",
             storeOp: "store"
         }
     ]
 });
-__WebGPUReconstruct_GPURenderPassEncoder_setPipeline_original.call(renderPass, pipeline);
-__WebGPUReconstruct_GPURenderPassEncoder_setBindGroup_original.call(renderPass, 0, bindGroup);
-__WebGPUReconstruct_GPURenderPassEncoder_draw_original.call(renderPass, 3);
-__WebGPUReconstruct_GPURenderPassEncoder_end_original.call(renderPass);
+__webGPUReconstruct.GPURenderPassEncoder_setPipeline_original.call(renderPass, pipeline);
+__webGPUReconstruct.GPURenderPassEncoder_setBindGroup_original.call(renderPass, 0, bindGroup);
+__webGPUReconstruct.GPURenderPassEncoder_draw_original.call(renderPass, 3);
+__webGPUReconstruct.GPURenderPassEncoder_end_original.call(renderPass);
 
 // Copy texture data into buffer.
-__WebGPUReconstruct_GPUCommandEncoder_copyTextureToBuffer_original.call(commandEncoder,
+__webGPUReconstruct.GPUCommandEncoder_copyTextureToBuffer_original.call(commandEncoder,
     {
         texture: dummyTexture,
     },
@@ -741,17 +741,17 @@ __WebGPUReconstruct_GPUCommandEncoder_copyTextureToBuffer_original.call(commandE
         width: width,
         height: height
     });
-let commandBuffer = __WebGPUReconstruct_GPUCommandEncoder_finish_original.call(commandEncoder);
-__WebGPUReconstruct_GPUQueue_submit_original.call(this.queue, [commandBuffer]);
+let commandBuffer = __webGPUReconstruct.GPUCommandEncoder_finish_original.call(commandEncoder);
+__webGPUReconstruct.GPUQueue_submit_original.call(this.queue, [commandBuffer]);
 
 // Map buffer.
-__WebGPUReconstruct_GPUBuffer_mapAsync_original.call(dummyBuffer, GPUMapMode.READ).then(() => {
+__webGPUReconstruct.GPUBuffer_mapAsync_original.call(dummyBuffer, GPUMapMode.READ).then(() => {
     // Read back data and write to reserved area.
-    let bufferData = new Uint8Array(__WebGPUReconstruct_GPUBuffer_getMappedRange_original.call(dummyBuffer));
+    let bufferData = new Uint8Array(__webGPUReconstruct.GPUBuffer_getMappedRange_original.call(dummyBuffer));
     __WebGPUReconstruct_file.writeReserved(reserved, bufferData);
-    __WebGPUReconstruct_GPUBuffer_unmap_original.call(dummyBuffer);
-    __WebGPUReconstruct_GPUTexture_destroy_original.call(dummyTexture);
-    __WebGPUReconstruct_GPUBuffer_destroy_original.call(dummyBuffer);
+    __webGPUReconstruct.GPUBuffer_unmap_original.call(dummyBuffer);
+    dummyTexture.destroy();
+    dummyBuffer.destroy();
 });
 """, """
 DebugOutput("importExternalTexture\\n");
