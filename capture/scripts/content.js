@@ -461,7 +461,7 @@ let __WebGPUReconstruct_firstAnimationFrame = true;
 function __WebGPUReconstruct_requestAnimationFrame_callback(timestamp) {
     __WebGPUReconstruct_file.writeUint32(2);
     __WebGPUReconstruct_file.writeUint32(1);
-    requestAnimationFrame(__WebGPUReconstruct_requestAnimationFrame_callback);
+    __webGPUReconstruct.animationFrameID = __webGPUReconstruct.requestAnimationFrame_original.call(window, __WebGPUReconstruct_requestAnimationFrame_callback);
 }
 
 function __WebGPUReconstruct_requestAnimationFrame_wrapper(originalMethod, callback) {
@@ -469,7 +469,7 @@ function __WebGPUReconstruct_requestAnimationFrame_wrapper(originalMethod, callb
     
     if (__WebGPUReconstruct_firstAnimationFrame) {
         __WebGPUReconstruct_firstAnimationFrame = false;
-        originalMethod.call(this, __WebGPUReconstruct_requestAnimationFrame_callback);
+        __webGPUReconstruct.animationFrameID = originalMethod.call(this, __WebGPUReconstruct_requestAnimationFrame_callback);
     }
     
     originalMethod.call(this, callback);
@@ -646,6 +646,10 @@ $WRAP_COMMANDS
         
         // End of capture.
         __WebGPUReconstruct_file.writeUint32(0);
+
+        if (this.animationFrameID != undefined) {
+            cancelAnimationFrame(this.animationFrameID);
+        }
 
         // Reset wrapped functions.
         GPUAdapter.prototype.requestDevice = this.GPUAdapter_requestDevice_original;
