@@ -252,8 +252,8 @@ GPURenderPassDepthStencilAttachment = StructType("GPURenderPassDepthStencilAttac
 
 GPURenderPassTimestampWrites = StructType("GPURenderPassTimestampWrites", [
     [GPUQuerySet, "querySet"],
-    [Uint32, "beginningOfPassWriteIndex"],
-    [Uint32, "endOfPassWriteIndex"]
+    [Uint32DefaultMax, "beginningOfPassWriteIndex"],
+    [Uint32DefaultMax, "endOfPassWriteIndex"]
 ])
 
 GPURenderPassDescriptor = StructType("GPURenderPassDescriptor", [
@@ -453,8 +453,8 @@ GPUComputePipelineDescriptor = StructType("GPUComputePipelineDescriptor", [
 
 GPUComputePassTimestampWrites = StructType("GPUComputePassTimestampWrites", [
     [GPUQuerySet, "querySet"],
-    [Uint32, "beginningOfPassWriteIndex"],
-    [Uint32, "endOfPassWriteIndex"]
+    [Uint32DefaultMax, "beginningOfPassWriteIndex"],
+    [Uint32DefaultMax, "endOfPassWriteIndex"]
 ])
 
 GPUComputePassDescriptor = StructType("GPUComputePassDescriptor", [
