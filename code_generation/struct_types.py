@@ -137,8 +137,9 @@ class SubStructType:
 # Array type.
 arrayDepth = 0
 class ArrayType:
-    def __init__(self, type):
+    def __init__(self, type, defaultElement = None):
         self.type = type
+        self.defaultElement = defaultElement
     
     def get_plural_name(self, name):
         if name[-1] == 'y':
@@ -149,21 +150,34 @@ class ArrayType:
         global arrayDepth
         arrayDepth += 1
         plural = self.get_plural_name(name)
-        
+        element = plural + '[i' + str(arrayDepth) + ']'
+
         capture = 'if (' + plural + ' == undefined) {\n'
         capture += '__WebGPUReconstruct_file.writeUint64(0);\n'
         capture += '} else {\n'
         capture += '__WebGPUReconstruct_file.writeUint64(' + plural + '.length);\n'
         capture += 'for (let i' + str(arrayDepth) + ' = 0; i' + str(arrayDepth) + ' < ' + plural + '.length; i' + str(arrayDepth) + ' += 1) {\n'
-        if isinstance(self.type, StructType):
-            capture += self.type.save(plural + '[i' + str(arrayDepth) + ']', True)
-        else:
-            capture += self.type.save(plural + '[i' + str(arrayDepth) + ']')
+        if self.defaultElement != None:
+            capture += 'if (' + element + ' == undefined) {\n'
+            capture += self.saveElement(self.defaultElement)
+            capture += '} else {\n'
+        
+        capture += self.saveElement(element)
+
+        if self.defaultElement != None:
+            capture += '}\n'
+
         capture += '}\n'
         capture += '}\n'
         
         arrayDepth -= 1
         return capture
+    
+    def saveElement(self, element):
+        if isinstance(self.type, StructType):
+            return self.type.save(element, True)
+        else:
+            return self.type.save(element)
     
     def load(self, name):
         global arrayDepth
@@ -258,7 +272,7 @@ GPURenderPassTimestampWrites = StructType("GPURenderPassTimestampWrites", [
 
 GPURenderPassDescriptor = StructType("GPURenderPassDescriptor", [
     [String, "label"],
-    [ArrayType(GPURenderPassColorAttachment), "colorAttachment"],
+    [ArrayType(GPURenderPassColorAttachment, '{}'), "colorAttachment"],
     [GPURenderPassDepthStencilAttachment, "depthStencilAttachment"],
     [GPUQuerySet, "occlusionQuerySet"],
     [GPURenderPassTimestampWrites, "timestampWrites"],
@@ -333,7 +347,7 @@ GPUFragmentState = StructType("GPUFragmentState", [
     [GPUShaderModule, "module"],
     [String, "entryPoint"],
     [GPUConstants, "constant"],
-    [ArrayType(GPUColorTargetState), "target"],
+    [ArrayType(GPUColorTargetState, '{}'), "target"],
 ])
 
 GPUMultisampleState = SubStructType("GPUMultisampleState", [
