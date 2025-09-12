@@ -148,6 +148,38 @@ if (offsets != nullptr) {
     delete[] offsets;
 }
 """)
+    
+# Add an override for an already existing command.
+def add_override_command(classType, methodName, argumentCount, overrides):
+    global captureCommandsString
+    global wrapCommandsString
+    
+    captureCommandsString += "function __WebGPUReconstruct_" + classType.webName + "_" + methodName + "_override(result"
+    for i in range(argumentCount):
+        captureCommandsString += ', arg' + str(i)
+
+    captureCommandsString += ") {\n"
+
+    for override in overrides:
+        captureCommandsString += "if (" + override["condition"] + ") {\n"
+        captureCommandsString += "__WebGPUReconstruct_" + classType.webName + "_" + methodName + ".call(this, result"
+        arguments = override["arguments"]
+        assert(len(arguments) == argumentCount)
+        for i in range(argumentCount):
+            captureCommandsString += ', ' + arguments[i]
+        captureCommandsString += ");\n"
+
+    captureCommandsString += "} else {\n"
+    captureCommandsString += "__WebGPUReconstruct_" + classType.webName + "_" + methodName + ".call(this, result"
+    for i in range(argumentCount):
+        captureCommandsString += ', arg' + str(i)
+    captureCommandsString += ");\n"
+    captureCommandsString += "}\n"
+
+    captureCommandsString += "}\n\n"
+
+    wrapCommandsString += '        ' + classType.webName + ".prototype." + methodName + " = this." + classType.webName + "_" + methodName + '_original;\n'
+    wrapCommandsString += '        ' + classType.webName + ".prototype." + methodName + " = this.wrapMethodPost(" + classType.webName + ".prototype." + methodName + ", __WebGPUReconstruct_" + classType.webName + "_" + methodName + '_override, "' + classType.webName + "_" + methodName + '");\n'
 
 ### COMMANDS
 add_simple_command(GPUDevice, "createBuffer", "wgpuDeviceCreateBuffer", GPUBuffer, [GPUBufferDescriptor])
@@ -170,7 +202,8 @@ add_simple_command(GPURenderPipeline, "getBindGroupLayout", "wgpuRenderPipelineG
 
 add_simple_command(GPUCommandEncoder, "beginRenderPass", "wgpuCommandEncoderBeginRenderPass", GPURenderPassEncoder, [GPURenderPassDescriptor])
 add_simple_command(GPUCommandEncoder, "beginComputePass", "wgpuCommandEncoderBeginComputePass", GPUComputePassEncoder, [GPUComputePassDescriptor])
-add_simple_command(GPUCommandEncoder, "copyBufferToBuffer", "wgpuCommandEncoderCopyBufferToBuffer", undefined, [GPUBuffer, Uint64, GPUBuffer, Uint64, Uint64])
+add_simple_command(GPUCommandEncoder, "copyBufferToBuffer", "wgpuCommandEncoderCopyBufferToBuffer", undefined, [GPUBuffer, Uint64, GPUBuffer, Uint64, Optional(Uint64, "arg0.size - arg1")])
+add_override_command(GPUCommandEncoder, "copyBufferToBuffer", 5, [{"condition": "arg3 == undefined", "arguments": ["arg0", "0", "arg1", "0", "arg2"]}])
 add_simple_command(GPUCommandEncoder, "copyBufferToTexture", "wgpuCommandEncoderCopyBufferToTexture", undefined, [GPUTexelCopyBufferInfo, GPUTexelCopyTextureInfo, GPUExtent3D])
 add_simple_command(GPUCommandEncoder, "copyTextureToBuffer", "wgpuCommandEncoderCopyTextureToBuffer", undefined, [GPUTexelCopyTextureInfo, GPUTexelCopyBufferInfo, GPUExtent3D])
 add_simple_command(GPUCommandEncoder, "copyTextureToTexture", "wgpuCommandEncoderCopyTextureToTexture", undefined, [GPUTexelCopyTextureInfo, GPUTexelCopyTextureInfo, GPUExtent3D])
