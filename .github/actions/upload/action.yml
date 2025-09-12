@@ -28,7 +28,8 @@ runs:
       with:
         name: replay-${{ inputs.platform }}-${{ inputs.backend }}
         path: |
-          ${{ github.workspace }}/build/replay/Release
+          ${{ github.workspace }}/build/replay/Release/WebGPUNativeReplay*
+          ${{ github.workspace }}/build/replay/Release/*.dll
 
 # Upload Linux build
     - name: Upload replayer
