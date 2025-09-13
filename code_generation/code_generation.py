@@ -2,7 +2,7 @@ import shutil
 import os
 import subprocess
 
-version = (0, 4)
+version = (1, 0)
 # Increment the file version whenever a change is introduced.
 fileVersion = 15
 
