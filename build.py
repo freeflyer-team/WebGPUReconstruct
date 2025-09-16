@@ -115,7 +115,7 @@ def build(configuration):
     start = default_timer()
     
     build_capture(configuration)
-    build_replay(configuration)
+    #build_replay(configuration)
     
     end = default_timer()
     print("Built WebGPUReconstruct in " + str(timedelta(seconds = end - start)))
