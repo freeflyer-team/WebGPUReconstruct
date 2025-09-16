@@ -149,13 +149,12 @@ function __WebGPUReconstruct_DebugOutput(output) {
     }
 }
 
-let __WebGPUReconstruct_file = new __WebGPUReconstruct_Uint8Writer();
+
 
 // Used to add an ID to WebGPU objects for tracking purposes.
-let __WebGPUReconstruct_nextId = 1;
 function __WebGPUReconstruct_AddId(object) {
-    object.__id = __WebGPUReconstruct_nextId
-    __WebGPUReconstruct_nextId += 1
+    object.__id = this.nextId
+    this.nextId += 1
 }
 
 // Helper functions.
@@ -397,7 +396,7 @@ const __WebGPUReconstruct_supportedFeatures = new Set([
 
 function __WebGPUReconstruct_GPUAdapter_requestDevice(originalMethod, descriptor) {
     __WebGPUReconstruct_DebugOutput("requestDevice");
-    __WebGPUReconstruct_file.writeUint32(5);
+    this.file.writeUint32(5);
     
     let overrideDescriptor = {};
     overrideDescriptor.requiredFeatures = [];
@@ -418,9 +417,9 @@ function __WebGPUReconstruct_GPUAdapter_requestDevice(originalMethod, descriptor
         }
     }
     
-    __WebGPUReconstruct_file.writeUint8(overrideDescriptor.requiredFeatures.includes("subgroups") ? 1 : 0);
-    __WebGPUReconstruct_file.writeUint32(this.info.subgroupMinSize);
-    __WebGPUReconstruct_file.writeUint32(this.info.subgroupMaxSize);
+    this.file.writeUint8(overrideDescriptor.requiredFeatures.includes("subgroups") ? 1 : 0);
+    this.file.writeUint32(this.info.subgroupMinSize);
+    this.file.writeUint32(this.info.subgroupMaxSize);
     
     return originalMethod.call(this, overrideDescriptor).then((device) => {
         // Store the device so it can be used to create textures and buffers in copyExternalImageToTexture.
@@ -456,23 +455,26 @@ function __WebGPUReconstruct_GPU_requestAdapter(originalMethod, options) {
     });
 }
 
-let __WebGPUReconstruct_firstAnimationFrame = true;
-
 function __WebGPUReconstruct_requestAnimationFrame_callback(timestamp) {
-    __WebGPUReconstruct_file.writeUint32(2);
-    __WebGPUReconstruct_file.writeUint32(1);
-    __webGPUReconstruct.animationFrameID = __webGPUReconstruct.requestAnimationFrame_original.call(window, __WebGPUReconstruct_requestAnimationFrame_callback);
+    this.file.writeUint32(2);
+    this.file.writeUint32(1);
+    this.animationFrameId = this.requestAnimationFrame_original.call(self, __WebGPUReconstruct_requestAnimationFrame_callback);
 }
 
 function __WebGPUReconstruct_requestAnimationFrame_wrapper(originalMethod, callback) {
     __WebGPUReconstruct_DebugOutput("requestAnimationFrame");
     
-    if (__WebGPUReconstruct_firstAnimationFrame) {
-        __WebGPUReconstruct_firstAnimationFrame = false;
-        __webGPUReconstruct.animationFrameID = originalMethod.call(this, __WebGPUReconstruct_requestAnimationFrame_callback);
+    if (this.firstAnimationFrame) {
+        this.firstAnimationFrame = false;
+        this.animationFrameId = originalMethod.call(this, __WebGPUReconstruct_requestAnimationFrame_callback);
     }
     
     originalMethod.call(this, callback);
+
+    this.frameCount += 1;
+    if (this.frameCount >= this.maxFrames) {
+        this.finishCapture();
+    }    
 }
 
 function __WebGPUReconstruct_getExternalTextureBlitPipeline(device) {
@@ -523,16 +525,16 @@ fn main(in : FSIn) -> @location(0) vec4f {
 }
 `;
 
-        device.__externalTextureBlitPipeline = __webGPUReconstruct.GPUDevice_createRenderPipeline_original.call(device, {
+        device.__externalTextureBlitPipeline = this.GPUDevice_createRenderPipeline_original.call(device, {
             label: "External texture blit pipeline",
             layout: "auto",
             vertex: {
-                module: __webGPUReconstruct.GPUDevice_createShaderModule_original.call(device, {
+                module: this.GPUDevice_createShaderModule_original.call(device, {
                     code: vertexWgsl
                 })
             },
             fragment: {
-                module: __webGPUReconstruct.GPUDevice_createShaderModule_original.call(device, {
+                module: this.GPUDevice_createShaderModule_original.call(device, {
                     code: fragmentWgsl
                 }),
                 targets: [
@@ -549,7 +551,7 @@ fn main(in : FSIn) -> @location(0) vec4f {
 
 function __WebGPUReconstruct_getExternalTextureBlitSampler(device) {
     if (device.__externalTextureBlitSampler == undefined) {
-        device.__externalTextureBlitSampler = __webGPUReconstruct.GPUDevice_createSampler_original.call(device);
+        device.__externalTextureBlitSampler = this.GPUDevice_createSampler_original.call(device);
     }
     
     return device.__externalTextureBlitSampler;
@@ -558,25 +560,25 @@ function __WebGPUReconstruct_getExternalTextureBlitSampler(device) {
 function __WebGPUReconstruct_GPUBuffer_unmap(originalMethod) {
     __WebGPUReconstruct_DebugOutput("unmap");
     if (this.__readOnly) {
-        __WebGPUReconstruct_file.writeUint32(4);
-        __WebGPUReconstruct_file.writeUint32(this.__id);
+        this.file.writeUint32(4);
+        this.file.writeUint32(this.__id);
     } else {
-        __WebGPUReconstruct_file.writeUint32(3);
-        __WebGPUReconstruct_file.writeUint32(this.__id);
+        this.file.writeUint32(3);
+        this.file.writeUint32(this.__id);
         
         // Capture buffer contents in all mapped ranges right before unmap().
         if (this.__mappedRanges == undefined) {
             this.__mappedRanges = [];
         }
         
-        __WebGPUReconstruct_file.writeUint64(this.__mappedRanges.length);
+        this.file.writeUint64(this.__mappedRanges.length);
         for (let range = 0; range < this.__mappedRanges.length; range += 1) {
-            __WebGPUReconstruct_file.writeUint64(this.__mappedRanges[range][0]);
+            this.file.writeUint64(this.__mappedRanges[range][0]);
             let size = this.__mappedRanges[range][1];
-            __WebGPUReconstruct_file.writeUint64(size);
+            this.file.writeUint64(size);
             let bufferContents = new Uint8Array(this.__mappedRanges[range][2]);
             for (let i = 0; i < size; i += 1) {
-                __WebGPUReconstruct_file.writeUint8(bufferContents[i]);
+                this.file.writeUint8(bufferContents[i]);
             }
         }
     }
@@ -599,13 +601,20 @@ function __WebGPUReconstruct_GPUDevice_createComputePipelineAsync(originalMethod
 }
 
 // Class used to hook WebGPU functions.
-class __WebGPUReconstruct {
+export class WebGPUReconstruct {
     constructor() {
+        this.firstAnimationFrame = true;
+        this.animationFrameId = undefined;
+        this.frameCount = 0;
+        this.maxFrames = 10;
+        this.file = new __WebGPUReconstruct_Uint8Writer();
+        this.nextId = 1;
+
         __WebGPUReconstruct_DebugOutput("Starting WebGPU Reconstruct");
         
-        __WebGPUReconstruct_file.writeUint32($FILE_VERSION);
-        __WebGPUReconstruct_file.writeUint32($VERSION_MAJOR);
-        __WebGPUReconstruct_file.writeUint32($VERSION_MINOR);
+        this.file.writeUint32($FILE_VERSION);
+        this.file.writeUint32($VERSION_MAJOR);
+        this.file.writeUint32($VERSION_MINOR);
         
         GPUAdapter.prototype.requestDevice = this.wrapMethodPre(GPUAdapter.prototype.requestDevice, __WebGPUReconstruct_GPUAdapter_requestDevice, "GPUAdapter_requestDevice");
         GPU.prototype.requestAdapter = this.wrapMethodPre(GPU.prototype.requestAdapter, __WebGPUReconstruct_GPU_requestAdapter, "GPU_requestAdapter");
@@ -642,10 +651,10 @@ $WRAP_COMMANDS
 
     finishCapture() {
         // End of last frame.
-        __WebGPUReconstruct_file.writeUint32(2);
+        this.file.writeUint32(2);
         
         // End of capture.
-        __WebGPUReconstruct_file.writeUint32(0);
+        this.file.writeUint32(0);
 
         if (this.animationFrameID != undefined) {
             cancelAnimationFrame(this.animationFrameID);
@@ -663,24 +672,3 @@ $RESET_COMMANDS
     }
 }
 
-let __webGPUReconstruct = new __WebGPUReconstruct();
-
-// Listener that listens for the "capture" button to be pressed.
-// When this happens, finish up the capture and store it to file.
-let __WebGPUReconstruct_firstCapture = true;
-document.addEventListener('__WebGPUReconstruct_saveCapture', function() {
-    if (!__WebGPUReconstruct_firstCapture) {
-        console.error("You need to reload the page between captures.");
-        return;
-    }
-    __WebGPUReconstruct_firstCapture = false;
-    __webGPUReconstruct.finishCapture();
-    
-    const blob = new Blob(__WebGPUReconstruct_file.arrays);
-    
-    // Create and click on a download link to save capture.
-    let a = document.createElement('a');
-    a.download = "capture.wgpur"
-    a.href = URL.createObjectURL(blob);
-    a.click();
-});
