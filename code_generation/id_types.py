@@ -14,9 +14,9 @@ class IdType:
     
     def save(self, name):
         capture = 'if (' + name + ' == undefined) {\n'
-        capture += '__WebGPUReconstruct_file.writeUint32(0);\n'
+        capture += 'this.file.writeUint32(0);\n'
         capture += '} else {\n'
-        capture += '__WebGPUReconstruct_file.writeUint32(' + name + '.__id);\n'
+        capture += 'this.file.writeUint32(' + name + '.__id);\n'
         capture += '}\n'
         return capture
     

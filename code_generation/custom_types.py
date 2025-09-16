@@ -28,24 +28,24 @@ class CustomType:
 
 GPUColor = CustomType("""
 if ($name.r != undefined) {
-    __WebGPUReconstruct_file.writeFloat64($name.r);
+    this.file.writeFloat64($name.r);
 } else {
-    __WebGPUReconstruct_file.writeFloat64($name[0]);
+    this.file.writeFloat64($name[0]);
 }
 if ($name.g != undefined) {
-    __WebGPUReconstruct_file.writeFloat64($name.g);
+    this.file.writeFloat64($name.g);
 } else {
-    __WebGPUReconstruct_file.writeFloat64($name[1]);
+    this.file.writeFloat64($name[1]);
 }
 if ($name.b != undefined) {
-    __WebGPUReconstruct_file.writeFloat64($name.b);
+    this.file.writeFloat64($name.b);
 } else {
-    __WebGPUReconstruct_file.writeFloat64($name[2]);
+    this.file.writeFloat64($name[2]);
 }
 if ($name.a != undefined) {
-    __WebGPUReconstruct_file.writeFloat64($name.a);
+    this.file.writeFloat64($name.a);
 } else {
-    __WebGPUReconstruct_file.writeFloat64($name[3]);
+    this.file.writeFloat64($name[3]);
 }
 """, """
 $name.r = reader.ReadFloat64();
@@ -57,25 +57,25 @@ $name.a = reader.ReadFloat64();
 
 GPUExtent3D = CustomType("""
 if ($name instanceof Array) {
-    __WebGPUReconstruct_file.writeUint32($name[0]);
+    this.file.writeUint32($name[0]);
     if ($name.length < 2) {
         $name.push(1);
     }
-    __WebGPUReconstruct_file.writeUint32($name[1]);
+    this.file.writeUint32($name[1]);
     if ($name.length < 3) {
         $name.push(1);
     }
-    __WebGPUReconstruct_file.writeUint32($name[2]);
+    this.file.writeUint32($name[2]);
 } else {
-    __WebGPUReconstruct_file.writeUint32($name.width);
+    this.file.writeUint32($name.width);
     if ($name.height == undefined) {
         $name.height = 1;
     }
-    __WebGPUReconstruct_file.writeUint32($name.height);
+    this.file.writeUint32($name.height);
     if ($name.depthOrArrayLayers == undefined) {
         $name.depthOrArrayLayers = 1;
     }
-    __WebGPUReconstruct_file.writeUint32($name.depthOrArrayLayers);
+    this.file.writeUint32($name.depthOrArrayLayers);
 }
 """, """
 $name.width = reader.ReadUint32();
@@ -86,13 +86,13 @@ $name.depthOrArrayLayers = reader.ReadUint32();
 
 GPUOrigin3D = CustomType("""
 if ($name instanceof Array) {
-    __WebGPUReconstruct_file.writeUint32($name[0]);
-    __WebGPUReconstruct_file.writeUint32($name[1]);
-    __WebGPUReconstruct_file.writeUint32($name[2]);
+    this.file.writeUint32($name[0]);
+    this.file.writeUint32($name[1]);
+    this.file.writeUint32($name[2]);
 } else {
-    __WebGPUReconstruct_file.writeUint32($name.x);
-    __WebGPUReconstruct_file.writeUint32($name.y);
-    __WebGPUReconstruct_file.writeUint32($name.z);
+    this.file.writeUint32($name.x);
+    this.file.writeUint32($name.y);
+    this.file.writeUint32($name.z);
 }
 """, """
 $name.x = reader.ReadUint32();
@@ -103,9 +103,9 @@ $name.z = reader.ReadUint32();
 
 Uint32DefaultMax = CustomType("""
 if ($name == undefined) {
-    __WebGPUReconstruct_file.writeUint32(0xffffffff);
+    this.file.writeUint32(0xffffffff);
 } else {
-    __WebGPUReconstruct_file.writeUint32($name);
+    this.file.writeUint32($name);
 }
 """,
 """
@@ -114,37 +114,37 @@ $name = reader.ReadUint32();
 )
 
 GPUBindGroupEntry = CustomType("""
-__WebGPUReconstruct_file.writeUint32($name.binding);
+this.file.writeUint32($name.binding);
 if ($name.resource instanceof GPUSampler) {
-    __WebGPUReconstruct_file.writeUint8(0);
-    __WebGPUReconstruct_file.writeUint32($name.resource.__id);
+    this.file.writeUint8(0);
+    this.file.writeUint32($name.resource.__id);
 } else if ($name.resource instanceof GPUTextureView) {
-    __WebGPUReconstruct_file.writeUint8(1);
-    __WebGPUReconstruct_file.writeUint32($name.resource.__id);
+    this.file.writeUint8(1);
+    this.file.writeUint32($name.resource.__id);
 } else if (typeof GPUExternalTexture !== 'undefined' && $name.resource instanceof GPUExternalTexture) {
-    __WebGPUReconstruct_file.writeUint8(3);
-    __WebGPUReconstruct_file.writeUint32($name.resource.__id);
+    this.file.writeUint8(3);
+    this.file.writeUint32($name.resource.__id);
 } else if ($name.resource instanceof GPUBuffer) {
-    __WebGPUReconstruct_file.writeUint8(2);
-    __WebGPUReconstruct_file.writeUint32($name.resource.__id);
-    __WebGPUReconstruct_file.writeUint64(0);
-    __WebGPUReconstruct_file.writeUint64($name.resource.size);
+    this.file.writeUint8(2);
+    this.file.writeUint32($name.resource.__id);
+    this.file.writeUint64(0);
+    this.file.writeUint64($name.resource.size);
 } else if ($name.resource instanceof GPUTexture) {
-    __WebGPUReconstruct_file.writeUint8(4);
-    __WebGPUReconstruct_file.writeUint32($name.resource.__id);
+    this.file.writeUint8(4);
+    this.file.writeUint32($name.resource.__id);
 } else {
-    __WebGPUReconstruct_file.writeUint8(2);
-    __WebGPUReconstruct_file.writeUint32($name.resource.buffer.__id);
+    this.file.writeUint8(2);
+    this.file.writeUint32($name.resource.buffer.__id);
     let offset = $name.resource.offset;
     if (offset == undefined) {
         offset = 0;
     }
-    __WebGPUReconstruct_file.writeUint64(offset);
+    this.file.writeUint64(offset);
     let size = $name.resource.size;
     if (size == undefined) {
         size = $name.resource.buffer.size - offset;
     }
-    __WebGPUReconstruct_file.writeUint64(size);
+    this.file.writeUint64(size);
 }
 """,
 """
@@ -178,13 +178,13 @@ GPUBindGroupEntry.nativeName = "WGPUBindGroupEntry"
 
 GPUConstants = CustomType("""
 if ($names == undefined) {
-    __WebGPUReconstruct_file.writeUint64(0);
+    this.file.writeUint64(0);
 } else {
     let keys = Object.keys($names);
-    __WebGPUReconstruct_file.writeUint64(keys.length);
+    this.file.writeUint64(keys.length);
     for (let i = 0; i < keys.length; i += 1) {
         """ + String.save("keys[i]") + """
-        __WebGPUReconstruct_file.writeFloat64($names[keys[i]]);
+        this.file.writeFloat64($names[keys[i]]);
     }
 }
 """, """
@@ -217,7 +217,7 @@ GPUTexelCopyBufferInfo = CustomType(GPUBuffer.save("$name.buffer") + "\n"
 
 # TODO Remove and define a GPUOptionalBool type.
 DepthWriteEnabled = CustomType("""
-__WebGPUReconstruct_file.writeUint8($name);
+this.file.writeUint8($name);
 """,
 """
 $name = reader.ReadUint8() ? WGPUOptionalBool_True : WGPUOptionalBool_False;
@@ -225,13 +225,13 @@ $name = reader.ReadUint8() ? WGPUOptionalBool_True : WGPUOptionalBool_False;
 
 TextureOrTextureView = CustomType("""
 if ($name == undefined) {
-    __WebGPUReconstruct_file.writeUint8(0);
+    this.file.writeUint8(0);
 } else if ($name instanceof GPUTextureView) {
-    __WebGPUReconstruct_file.writeUint8(1);
-    __WebGPUReconstruct_file.writeUint32($name.__id);
+    this.file.writeUint8(1);
+    this.file.writeUint32($name.__id);
 } else if ($name instanceof GPUTexture) {
-    __WebGPUReconstruct_file.writeUint8(2);
-    __WebGPUReconstruct_file.writeUint32($name.__id);
+    this.file.writeUint8(2);
+    this.file.writeUint32($name.__id);
 }
 """,
 """

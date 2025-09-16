@@ -34,11 +34,11 @@ def add_simple_command(classType, methodName, nativeCommand, returnType, argumen
     replay = 'DebugOutput("' + methodName + '\\n");\n'
     
     # Write command id.
-    capture += '__WebGPUReconstruct_file.writeUint32($COMMAND_ID);\n'
+    capture += 'this.file.writeUint32($COMMAND_ID);\n'
     
     # Class information
     if isinstance(classType, IdType):
-        capture += '__WebGPUReconstruct_file.writeUint32(this.__id);\n'
+        capture += 'this.file.writeUint32(this.__id);\n'
         replay += 'const uint32_t subjectId = reader.ReadUint32();\n'
         replay += classType.nativeName + ' subject = map' + classType.webName + '[subjectId];\n'
     else:
@@ -48,7 +48,7 @@ def add_simple_command(classType, methodName, nativeCommand, returnType, argumen
     # Result information.
     if isinstance(returnType, IdType):
         capture += '__WebGPUReconstruct_AddId(result);\n'
-        capture += '__WebGPUReconstruct_file.writeUint32(result.__id);\n'
+        capture += 'this.file.writeUint32(result.__id);\n'
         
         replay += 'const uint32_t resultId = reader.ReadUint32();\n'
     else:
@@ -97,7 +97,7 @@ def add_unsupported_command(classType, methodName, argumentCount):
     replay = 'ErrorOutput("Unimplemented command: ' + methodName + '\\n");\n'
     
     # Write command id.
-    capture += '__WebGPUReconstruct_file.writeUint32($COMMAND_ID);\n'
+    capture += 'this.file.writeUint32($COMMAND_ID);\n'
     
     arguments = []
     for i in range(argumentCount):
@@ -109,10 +109,10 @@ def add_unsupported_command(classType, methodName, argumentCount):
 def add_set_bind_group_command(classType, methodName):
     add_custom_command(classType, "setBindGroup", ["index", "bindGroup", "offsets0", "offsets1", "offsets2"], """
 __WebGPUReconstruct_DebugOutput("setBindGroup");
-__WebGPUReconstruct_file.writeUint32($COMMAND_ID);
-__WebGPUReconstruct_file.writeUint32(this.__id);
-__WebGPUReconstruct_file.writeUint32(index);
-__WebGPUReconstruct_file.writeUint32(bindGroup.__id);
+this.file.writeUint32($COMMAND_ID);
+this.file.writeUint32(this.__id);
+this.file.writeUint32(index);
+this.file.writeUint32(bindGroup.__id);
 
 if (offsets0 == undefined) {
     offsets0 = [];
@@ -120,14 +120,14 @@ if (offsets0 == undefined) {
 
 // There are two overloads of this function, one taking a Uint32Array containing offsets, and one with a regular array.
 if (offsets0 instanceof Uint32Array && offsets1 != undefined && offsets2 != undefined) {
-    __WebGPUReconstruct_file.writeUint64(offsets2);
+    this.file.writeUint64(offsets2);
     for (let i = 0; i < offsets2; i += 1) {
-        __WebGPUReconstruct_file.writeUint32(offsets0[offsets1 + i]);
+        this.file.writeUint32(offsets0[offsets1 + i]);
     }
 } else {
-    __WebGPUReconstruct_file.writeUint64(offsets0.length);
+    this.file.writeUint64(offsets0.length);
     for (let i = 0; i < offsets0.length; i += 1) {
-    __WebGPUReconstruct_file.writeUint32(offsets0[i]);
+    this.file.writeUint32(offsets0[i]);
     }
 }
 """, """
@@ -260,17 +260,17 @@ add_simple_command(GPUQueue, "submit", "wgpuQueueSubmit", undefined, [ArrayType(
 
 add_custom_command(GPUCanvasContext, "configure", ["configuration"], """
 __WebGPUReconstruct_DebugOutput("configure");
-__WebGPUReconstruct_file.writeUint32($COMMAND_ID);
+this.file.writeUint32($COMMAND_ID);
 if (this.__id == undefined) {
     __WebGPUReconstruct_AddId(this);
 }
-__WebGPUReconstruct_file.writeUint32(this.__id);
+this.file.writeUint32(this.__id);
 if (configuration.usage == undefined) {
     configuration.usage = 0x10;
 }
-__WebGPUReconstruct_file.writeUint32(configuration.usage);
-__WebGPUReconstruct_file.writeUint32(this.canvas.width);
-__WebGPUReconstruct_file.writeUint32(this.canvas.height);
+this.file.writeUint32(configuration.usage);
+this.file.writeUint32(this.canvas.width);
+this.file.writeUint32(this.canvas.height);
 """ + GPUTextureFormat.save("configuration.format") + ArrayType(GPUTextureFormat).save("configuration.viewFormat") + """
 """, """
 DebugOutput("configure\\n");
@@ -304,12 +304,12 @@ canvasTextures[canvasID].texture = wgpuDeviceCreateTexture(device.GetDevice(), &
 
 add_custom_command(GPUCanvasContext, "getCurrentTexture", [], """
 __WebGPUReconstruct_DebugOutput("getCurrentTexture");
-__WebGPUReconstruct_file.writeUint32($COMMAND_ID);
-__WebGPUReconstruct_file.writeUint32(this.__id);
+this.file.writeUint32($COMMAND_ID);
+this.file.writeUint32(this.__id);
 __WebGPUReconstruct_AddId(result);
-__WebGPUReconstruct_file.writeUint32(result.__id);
-__WebGPUReconstruct_file.writeUint32(this.canvas.width);
-__WebGPUReconstruct_file.writeUint32(this.canvas.height);
+this.file.writeUint32(result.__id);
+this.file.writeUint32(this.canvas.width);
+this.file.writeUint32(this.canvas.height);
 """, """
 DebugOutput("getCurrentTexture\\n");
 const uint32_t canvasID = reader.ReadUint32();
@@ -344,13 +344,13 @@ AddCanvasSize(texture.width, texture.height);
 
 add_custom_command(GPUDevice, "createShaderModule", ["descriptor"], """
 __WebGPUReconstruct_DebugOutput("createShaderModule");
-__WebGPUReconstruct_file.writeUint32($COMMAND_ID);
+this.file.writeUint32($COMMAND_ID);
 __WebGPUReconstruct_AddId(result);
-__WebGPUReconstruct_file.writeUint32(result.__id);
+this.file.writeUint32(result.__id);
 __WebGPUReconstruct_DebugOutput(descriptor.code);
-__WebGPUReconstruct_file.writeUint64(descriptor.code.length);
+this.file.writeUint64(descriptor.code.length);
 for (let i = 0; i < descriptor.code.length; i += 1) {
-    __WebGPUReconstruct_file.writeUint8(descriptor.code.charCodeAt(i));
+    this.file.writeUint8(descriptor.code.charCodeAt(i));
 }
 // TODO Hints
 if (descriptor.compilationHints != undefined && descriptor.compilationHints.length > 0) {
@@ -382,9 +382,9 @@ delete[] code;
 
 add_custom_command(GPUQueue, "writeBuffer", ["buffer", "bufferOffset", "data", "dataOffset", "size"], """
 __WebGPUReconstruct_DebugOutput("writeBuffer");
-__WebGPUReconstruct_file.writeUint32($COMMAND_ID);
-__WebGPUReconstruct_file.writeUint32(buffer.__id);
-__WebGPUReconstruct_file.writeUint64(bufferOffset);
+this.file.writeUint32($COMMAND_ID);
+this.file.writeUint32(buffer.__id);
+this.file.writeUint64(bufferOffset);
 if (dataOffset == undefined) {
     dataOffset = 0;
 }
@@ -403,8 +403,8 @@ if (ArrayBuffer.isView(data)) {
     }
     dataUint8 = new Uint8Array(data);
 }
-__WebGPUReconstruct_file.writeUint64(size);
-__WebGPUReconstruct_file.writeBuffer(dataUint8, dataOffset, size);
+this.file.writeUint64(size);
+this.file.writeBuffer(dataUint8, dataOffset, size);
 """, """
 DebugOutput("writeBuffer\\n");
 const uint32_t id = reader.ReadUint32();
@@ -418,17 +418,17 @@ delete[] data;
 
 add_custom_command(GPUBuffer, "mapAsync", ["mode", "offset", "size"], """
 __WebGPUReconstruct_DebugOutput("mapAsync");
-__WebGPUReconstruct_file.writeUint32($COMMAND_ID);
+this.file.writeUint32($COMMAND_ID);
 if (offset == undefined) {
     offset = 0;
 }
 if (size == undefined) {
     size = this.size - offset;
 }
-__WebGPUReconstruct_file.writeUint32(this.__id);
-__WebGPUReconstruct_file.writeUint32(mode);
-__WebGPUReconstruct_file.writeUint64(offset);
-__WebGPUReconstruct_file.writeUint64(size);
+this.file.writeUint32(this.__id);
+this.file.writeUint32(mode);
+this.file.writeUint64(offset);
+this.file.writeUint64(size);
 if ((mode & GPUMapMode.WRITE) == 0) {
     this.__readOnly = true;
 }
@@ -475,7 +475,7 @@ wgpuBufferMapAsync(buffer, mode, offset, size, callbackInfo);
 
 add_custom_command(GPUBuffer, "getMappedRange", ["offset", "size"], """
 __WebGPUReconstruct_DebugOutput("getMappedRange");
-__WebGPUReconstruct_file.writeUint32($COMMAND_ID);
+this.file.writeUint32($COMMAND_ID);
 if (offset == undefined) {
     offset = 0;
 }
@@ -492,7 +492,7 @@ DebugOutput("getMappedRange\\n");
 
 add_custom_command(GPUQueue, "writeTexture", ["destination", "data", "dataLayout", "size"], """
 __WebGPUReconstruct_DebugOutput("writeTexture");
-__WebGPUReconstruct_file.writeUint32($COMMAND_ID);
+this.file.writeUint32($COMMAND_ID);
 """ + GPUTexelCopyTextureInfo.save("destination") + GPUExtent3D.save("size") + """
 let dataUint8;
 if (ArrayBuffer.isView(data)) {
@@ -544,8 +544,8 @@ const offset = (dataLayout.offset == undefined) ? 0 : dataLayout.offset;
 const remainingBufferLength = dataUint8.length - offset;
 const dataLength = Math.min(remainingBufferLength, size2.depthOrArrayLayers * dataLayout2.rowsPerImage * dataLayout2.bytesPerRow);
 
-__WebGPUReconstruct_file.writeUint64(dataLength);
-__WebGPUReconstruct_file.writeBuffer(dataUint8, offset, dataLength);
+this.file.writeUint64(dataLength);
+this.file.writeBuffer(dataUint8, offset, dataLength);
 """, """
 DebugOutput("writeTexture\\n");
 """ + GPUTexelCopyTextureInfo.declare_argument("destination") + GPUTexelCopyTextureInfo.load("destination") + GPUExtent3D.declare_argument("size") + GPUExtent3D.load("size") + GPUTexelCopyBufferLayout.declare_argument("dataLayout") + GPUTexelCopyBufferLayout.load("dataLayout") + """
@@ -559,7 +559,7 @@ delete[] data;
 add_custom_command(GPUQueue, "copyExternalImageToTexture", ["source", "destination", "copySize"], """
 __WebGPUReconstruct_DebugOutput("copyExternalImageToTexture");
 
-__WebGPUReconstruct_file.writeUint32($COMMAND_ID);
+this.file.writeUint32($COMMAND_ID);
 
 // There is no native equivalent to copyExternalImageToTexture, and implementing it ourselves is quite an endeavor
 // as it needs to handle color space conversion, format conversion, multiple sources for the external image, etc.
@@ -601,8 +601,8 @@ if (dataLayout.bytesPerRow > 0) {
 
 // Reserve area for the data.
 let dataLength = dataLayout.bytesPerRow * dataLayout.rowsPerImage * size.depthOrArrayLayers;
-__WebGPUReconstruct_file.writeUint64(dataLength);
-let reserved = __WebGPUReconstruct_file.reserve(dataLength);
+this.file.writeUint64(dataLength);
+let reserved = this.file.reserve(dataLength);
 
 // Quit if size to copy is 0.
 if (dataLayout.bytesPerRow == 0) {
@@ -652,7 +652,7 @@ __webGPUReconstruct.GPUQueue_submit_original.call(this, [commandBuffer]);
 __webGPUReconstruct.GPUBuffer_mapAsync_original.call(dummyBuffer, GPUMapMode.READ).then(() => {
     // Read back data and write to reserved area.
     let bufferData = new Uint8Array(__webGPUReconstruct.GPUBuffer_getMappedRange_original.call(dummyBuffer));
-    __WebGPUReconstruct_file.writeReserved(reserved, bufferData);
+    this.file.writeReserved(reserved, bufferData);
     __webGPUReconstruct.GPUBuffer_unmap_original.call(dummyBuffer);
     dummyTexture.destroy();
     dummyBuffer.destroy();
@@ -673,16 +673,16 @@ delete[] data;
 
 add_custom_command(GPUDevice, "importExternalTexture", ["descriptor"], """
 __WebGPUReconstruct_DebugOutput("importExternalTexture");
-__WebGPUReconstruct_file.writeUint32($COMMAND_ID);
+this.file.writeUint32($COMMAND_ID);
 
 if (result.__id != undefined) {
     // Duplicate import, no need to re-import.
-    __WebGPUReconstruct_file.writeUint8(0);
+    this.file.writeUint8(0);
     return;
 }
-__WebGPUReconstruct_file.writeUint8(1);
+this.file.writeUint8(1);
 __WebGPUReconstruct_AddId(result);
-__WebGPUReconstruct_file.writeUint32(result.__id);
+this.file.writeUint32(result.__id);
 
 // Determine image dimensions based on https://gpuweb.github.io/gpuweb/#external-source-dimensions
 let width = 1;
@@ -696,8 +696,8 @@ if (descriptor.source instanceof HTMLVideoElement) {
 } else {
     console.error("Unknown source in importExternalTexture");
 }
-__WebGPUReconstruct_file.writeUint32(width);
-__WebGPUReconstruct_file.writeUint32(height);
+this.file.writeUint32(width);
+this.file.writeUint32(height);
 
 // Allocate dummy texture to copy into.
 let dummyTexture = __webGPUReconstruct.GPUDevice_createTexture_original.call(this, {
@@ -721,8 +721,8 @@ dataLayout.bytesPerRow = (Math.floor((dataLayout.bytesPerRow - 1) / 256) + 1) * 
 
 // Reserve area for the data.
 let dataLength = dataLayout.bytesPerRow * dataLayout.rowsPerImage;
-__WebGPUReconstruct_file.writeUint64(dataLength);
-let reserved = __WebGPUReconstruct_file.reserve(dataLength);
+this.file.writeUint64(dataLength);
+let reserved = this.file.reserve(dataLength);
 
 // Allocate dummy buffer to copy into.
 let dummyBuffer = __webGPUReconstruct.GPUDevice_createBuffer_original.call(this, {
@@ -784,7 +784,7 @@ __webGPUReconstruct.GPUQueue_submit_original.call(this.queue, [commandBuffer]);
 __webGPUReconstruct.GPUBuffer_mapAsync_original.call(dummyBuffer, GPUMapMode.READ).then(() => {
     // Read back data and write to reserved area.
     let bufferData = new Uint8Array(__webGPUReconstruct.GPUBuffer_getMappedRange_original.call(dummyBuffer));
-    __WebGPUReconstruct_file.writeReserved(reserved, bufferData);
+    this.file.writeReserved(reserved, bufferData);
     __webGPUReconstruct.GPUBuffer_unmap_original.call(dummyBuffer);
     dummyTexture.destroy();
     dummyBuffer.destroy();

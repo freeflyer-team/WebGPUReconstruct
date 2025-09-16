@@ -5,7 +5,7 @@ class PrimitiveType:
         self.nativeName = nativeName
     
     def save(self, name):
-        capture = '__WebGPUReconstruct_file.write' + self.webName + '(' + name + ');\n'
+        capture = 'this.file.write' + self.webName + '(' + name + ');\n'
         return capture
     
     def load(self, name):

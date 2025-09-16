@@ -50,9 +50,9 @@ class StructType:
             capture += '__WebGPUReconstruct_' + self.webName + '_Save(' + name + ');\n'
         else:
             capture += 'if (' + name  + ' == undefined) {\n'
-            capture += '__WebGPUReconstruct_file.writeUint8(0);\n'
+            capture += 'this.file.writeUint8(0);\n'
             capture += '} else {\n'
-            capture += '__WebGPUReconstruct_file.writeUint8(1);\n'
+            capture += 'this.file.writeUint8(1);\n'
             capture += '__WebGPUReconstruct_' + self.webName + '_Save(' + name + ');\n'
             capture += '}\n'
         return capture
@@ -153,9 +153,9 @@ class ArrayType:
         element = plural + '[i' + str(arrayDepth) + ']'
 
         capture = 'if (' + plural + ' == undefined) {\n'
-        capture += '__WebGPUReconstruct_file.writeUint64(0);\n'
+        capture += 'this.file.writeUint64(0);\n'
         capture += '} else {\n'
-        capture += '__WebGPUReconstruct_file.writeUint64(' + plural + '.length);\n'
+        capture += 'this.file.writeUint64(' + plural + '.length);\n'
         capture += 'for (let i' + str(arrayDepth) + ' = 0; i' + str(arrayDepth) + ' < ' + plural + '.length; i' + str(arrayDepth) + ' += 1) {\n'
         if self.defaultElement != None:
             capture += 'if (' + element + ' == undefined) {\n'
