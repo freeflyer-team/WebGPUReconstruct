@@ -464,9 +464,12 @@ function __WebGPUReconstruct_requestAnimationFrame_callback(timestamp) {
     __WebGPUReconstruct_file.writeUint32(2);
     __WebGPUReconstruct_file.writeUint32(1);
 
-    const target = window !== undefined ? window : self;
+    const globalScope =
+        typeof window !== "undefined" ? window :
+        typeof self !== "undefined" ? self :
+        undefined;
 
-    __webGPUReconstruct.animationFrameID = __webGPUReconstruct.requestAnimationFrame_original.call(target, __WebGPUReconstruct_requestAnimationFrame_callback);
+    __webGPUReconstruct.animationFrameID = __webGPUReconstruct.requestAnimationFrame_original.call(globalScope, __WebGPUReconstruct_requestAnimationFrame_callback);
 }
 
 function __WebGPUReconstruct_requestAnimationFrame_wrapper(originalMethod, callback) {
