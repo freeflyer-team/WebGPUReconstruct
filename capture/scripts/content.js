@@ -457,11 +457,16 @@ function __WebGPUReconstruct_GPU_requestAdapter(originalMethod, options) {
 }
 
 let __WebGPUReconstruct_firstAnimationFrame = true;
+let __WebGPUReconstruct_numFrames = 0;
+let __WebGPUReconstruct_maxFrames = 10;
 
 function __WebGPUReconstruct_requestAnimationFrame_callback(timestamp) {
     __WebGPUReconstruct_file.writeUint32(2);
     __WebGPUReconstruct_file.writeUint32(1);
-    __webGPUReconstruct.animationFrameID = __webGPUReconstruct.requestAnimationFrame_original.call(window, __WebGPUReconstruct_requestAnimationFrame_callback);
+
+    const target = window !== undefined ? window : self;
+
+    __webGPUReconstruct.animationFrameID = __webGPUReconstruct.requestAnimationFrame_original.call(target, __WebGPUReconstruct_requestAnimationFrame_callback);
 }
 
 function __WebGPUReconstruct_requestAnimationFrame_wrapper(originalMethod, callback) {
@@ -473,6 +478,11 @@ function __WebGPUReconstruct_requestAnimationFrame_wrapper(originalMethod, callb
     }
     
     originalMethod.call(this, callback);
+
+    __WebGPUReconstruct_numFrames += 1;
+    if (__WebGPUReconstruct_maxFrames > 0 && __WebGPUReconstruct_numFrames >= __WebGPUReconstruct_maxFrames) {
+        __webGPUReconstruct.finishCapture();
+    }
 }
 
 function __WebGPUReconstruct_getExternalTextureBlitPipeline(device) {
@@ -598,6 +608,7 @@ function __WebGPUReconstruct_GPUDevice_createComputePipelineAsync(originalMethod
     return new Promise((resolve, reject) => { resolve(pipeline); });
 }
 
+
 // Class used to hook WebGPU functions.
 class __WebGPUReconstruct {
     constructor() {
@@ -665,22 +676,3 @@ $RESET_COMMANDS
 
 let __webGPUReconstruct = new __WebGPUReconstruct();
 
-// Listener that listens for the "capture" button to be pressed.
-// When this happens, finish up the capture and store it to file.
-let __WebGPUReconstruct_firstCapture = true;
-document.addEventListener('__WebGPUReconstruct_saveCapture', function() {
-    if (!__WebGPUReconstruct_firstCapture) {
-        console.error("You need to reload the page between captures.");
-        return;
-    }
-    __WebGPUReconstruct_firstCapture = false;
-    __webGPUReconstruct.finishCapture();
-    
-    const blob = new Blob(__WebGPUReconstruct_file.arrays);
-    
-    // Create and click on a download link to save capture.
-    let a = document.createElement('a');
-    a.download = "capture.wgpur"
-    a.href = URL.createObjectURL(blob);
-    a.click();
-});
