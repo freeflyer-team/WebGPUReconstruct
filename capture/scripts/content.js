@@ -671,6 +671,9 @@ $WRAP_COMMANDS
         GPUDevice.prototype.createComputePipelineAsync = this.GPUDevice_createComputePipelineAsync_original;
 
 $RESET_COMMANDS
+        const blob = new Blob(__WebGPUReconstruct_file.arrays);
+
+        postMessage({ type: 'wgpuCaptureData', data: blob });
     }
 }
 
