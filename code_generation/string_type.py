@@ -2,9 +2,9 @@
 class StringType:
     def save(self, name):
         capture = 'if (' + name + ' == undefined) {\n'
-        capture += 'this.file.writeUint64(0);\n'
+        capture += 'wgpur.file.writeUint64(0);\n'
         capture += '} else {\n'
-        capture += 'this.file.writeString(String(' + name + '));\n'
+        capture += 'wgpur.file.writeString(String(' + name + '));\n'
         capture += '}\n'
         return capture
     

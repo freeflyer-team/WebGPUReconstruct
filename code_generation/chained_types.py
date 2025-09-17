@@ -17,9 +17,9 @@ class ChainedType:
     
     def save(self, name):
         capture = 'if (' + name + ' == undefined) {\n'
-        capture += 'this.file.writeUint8(0);\n'
+        capture += 'wgpur.file.writeUint8(0);\n'
         capture += '} else {\n'
-        capture += 'this.file.writeUint8(1);\n'
+        capture += 'wgpur.file.writeUint8(1);\n'
         capture += self.saveCode.replace('$name', name)
         capture += '}\n'
         return capture
@@ -54,7 +54,7 @@ class ChainedType:
         return cleanup
 
 GPURenderPassMaxDrawCount = ChainedType("RenderPassMaxDrawCount", """
-this.file.writeUint64($name);
+wgpur.file.writeUint64($name);
 """,
 """
 $name->maxDrawCount = reader.ReadUint64();

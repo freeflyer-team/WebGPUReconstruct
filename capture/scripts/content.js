@@ -149,8 +149,6 @@ function __WebGPUReconstruct_DebugOutput(output) {
     }
 }
 
-
-
 // Used to add an ID to WebGPU objects for tracking purposes.
 function __WebGPUReconstruct_AddId(object) {
     object.__id = this.nextId
@@ -394,9 +392,9 @@ const __WebGPUReconstruct_supportedFeatures = new Set([
     "subgroups",
 ]);
 
-function __WebGPUReconstruct_GPUAdapter_requestDevice(originalMethod, descriptor) {
+function __WebGPUReconstruct_GPUAdapter_requestDevice(originalMethod, wgpur, descriptor) {
     __WebGPUReconstruct_DebugOutput("requestDevice");
-    this.file.writeUint32(5);
+    wgpur.file.writeUint32(5);
     
     let overrideDescriptor = {};
     overrideDescriptor.requiredFeatures = [];
@@ -417,9 +415,9 @@ function __WebGPUReconstruct_GPUAdapter_requestDevice(originalMethod, descriptor
         }
     }
     
-    this.file.writeUint8(overrideDescriptor.requiredFeatures.includes("subgroups") ? 1 : 0);
-    this.file.writeUint32(this.info.subgroupMinSize);
-    this.file.writeUint32(this.info.subgroupMaxSize);
+    wgpur.file.writeUint8(overrideDescriptor.requiredFeatures.includes("subgroups") ? 1 : 0);
+    wgpur.file.writeUint32(this.info.subgroupMinSize);
+    wgpur.file.writeUint32(this.info.subgroupMaxSize);
     
     return originalMethod.call(this, overrideDescriptor).then((device) => {
         // Store the device so it can be used to create textures and buffers in copyExternalImageToTexture.
@@ -440,7 +438,7 @@ $STRUCT_SAVE_FUNCTIONS
 // Generated code will be inserted here.
 $CAPTURE_COMMANDS
 
-function __WebGPUReconstruct_GPU_requestAdapter(originalMethod, options) {
+function __WebGPUReconstruct_GPU_requestAdapter(originalMethod, wgpur, options) {
     __WebGPUReconstruct_DebugOutput("requestAdapter");
     
     return originalMethod.call(this, options).then((adapter) => {
@@ -453,28 +451,28 @@ function __WebGPUReconstruct_GPU_requestAdapter(originalMethod, options) {
         adapter.__defineGetter__("features", function() { return features;});
         return adapter;
     });
+}``
+
+function __WebGPUReconstruct_requestAnimationFrame_callback(wgpur, timestamp) {
+    wgpur.file.writeUint32(2);
+    wgpur.file.writeUint32(1);
+    wgpur.animationFrameId = wgpur.requestAnimationFrame_original.call(self, __WebGPUReconstruct_requestAnimationFrame_callback);
 }
 
-function __WebGPUReconstruct_requestAnimationFrame_callback(timestamp) {
-    this.file.writeUint32(2);
-    this.file.writeUint32(1);
-    this.animationFrameId = this.requestAnimationFrame_original.call(self, __WebGPUReconstruct_requestAnimationFrame_callback);
-}
-
-function __WebGPUReconstruct_requestAnimationFrame_wrapper(originalMethod, callback) {
+function __WebGPUReconstruct_requestAnimationFrame_wrapper(originalMethod, wgpur, callback) {
     __WebGPUReconstruct_DebugOutput("requestAnimationFrame");
     
-    if (this.firstAnimationFrame) {
-        this.firstAnimationFrame = false;
-        this.animationFrameId = originalMethod.call(this, __WebGPUReconstruct_requestAnimationFrame_callback);
+    if (wgpur.firstAnimationFrame) {
+        wgpur.firstAnimationFrame = false;
+        wgpur.animationFrameId = originalMethod.call(this, __WebGPUReconstruct_requestAnimationFrame_callback);
     }
-    
+
     originalMethod.call(this, callback);
 
-    this.frameCount += 1;
-    if (this.frameCount >= this.maxFrames) {
-        this.finishCapture();
-    }    
+    wgpur.frameCount += 1;
+    if (wgpur.frameCount >= wgpur.maxFrames) {
+        wgpur.finishCapture();
+    }
 }
 
 function __WebGPUReconstruct_getExternalTextureBlitPipeline(device) {
@@ -557,28 +555,28 @@ function __WebGPUReconstruct_getExternalTextureBlitSampler(device) {
     return device.__externalTextureBlitSampler;
 }
 
-function __WebGPUReconstruct_GPUBuffer_unmap(originalMethod) {
+function __WebGPUReconstruct_GPUBuffer_unmap(originalMethod, wgpur) {
     __WebGPUReconstruct_DebugOutput("unmap");
     if (this.__readOnly) {
-        this.file.writeUint32(4);
-        this.file.writeUint32(this.__id);
+        wgpur.file.writeUint32(4);
+        wgpur.file.writeUint32(this.__id);
     } else {
-        this.file.writeUint32(3);
-        this.file.writeUint32(this.__id);
-        
+        wgpur.file.writeUint32(3);
+        wgpur.file.writeUint32(this.__id);
+
         // Capture buffer contents in all mapped ranges right before unmap().
         if (this.__mappedRanges == undefined) {
             this.__mappedRanges = [];
         }
         
-        this.file.writeUint64(this.__mappedRanges.length);
+        wgpur.file.writeUint64(this.__mappedRanges.length);
         for (let range = 0; range < this.__mappedRanges.length; range += 1) {
-            this.file.writeUint64(this.__mappedRanges[range][0]);
+            wgpur.file.writeUint64(this.__mappedRanges[range][0]);
             let size = this.__mappedRanges[range][1];
-            this.file.writeUint64(size);
+            wgpur.file.writeUint64(size);
             let bufferContents = new Uint8Array(this.__mappedRanges[range][2]);
             for (let i = 0; i < size; i += 1) {
-                this.file.writeUint8(bufferContents[i]);
+                wgpur.file.writeUint8(bufferContents[i]);
             }
         }
     }
@@ -588,13 +586,13 @@ function __WebGPUReconstruct_GPUBuffer_unmap(originalMethod) {
     originalMethod.call(this);
 }
 
-function __WebGPUReconstruct_GPUDevice_createRenderPipelineAsync(originalMethod, descriptor) {
+function __WebGPUReconstruct_GPUDevice_createRenderPipelineAsync(originalMethod, wgpur, descriptor) {
     __WebGPUReconstruct_DebugOutput("createRenderPipelineAsync");
     let pipeline = this.createRenderPipeline(descriptor);
     return new Promise((resolve, reject) => { resolve(pipeline); });
 }
 
-function __WebGPUReconstruct_GPUDevice_createComputePipelineAsync(originalMethod, descriptor) {
+function __WebGPUReconstruct_GPUDevice_createComputePipelineAsync(originalMethod, wgpur, descriptor) {
     __WebGPUReconstruct_DebugOutput("createComputePipelineAsync");
     let pipeline = this.createComputePipeline(descriptor);
     return new Promise((resolve, reject) => { resolve(pipeline); });
@@ -635,7 +633,7 @@ $WRAP_COMMANDS
             
             const result = originalMethod.call(object, ...args);
             
-            hook.call(object, result, ...args);
+            hook.call(object, reconstruct, result, ...args);
             
             return result;
         }
@@ -643,9 +641,10 @@ $WRAP_COMMANDS
     
     wrapMethodPre(originalMethod, hook, originalName) {
         this[originalName + "_original"] = originalMethod;
+        const reconstruct = this;
         return function() {
             const args = [...arguments];
-            return hook.call(this, originalMethod, ...args);
+            return hook.call(this, reconstruct, originalMethod, ...args);
         }
     }
 

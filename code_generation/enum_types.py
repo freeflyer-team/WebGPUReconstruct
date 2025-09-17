@@ -15,10 +15,10 @@ class EnumType:
         enumSaveFunctionsString += 'switch (String(value)) {\n'
         for i in range(len(self.members)):
             enumSaveFunctionsString += 'case "' + self.members[i][0] + '":\n'
-            enumSaveFunctionsString += 'this.file.writeUint32(' + str(i) + ');\n'
+            enumSaveFunctionsString += 'wgpur.file.writeUint32(' + str(i) + ');\n'
             enumSaveFunctionsString += 'break;\n'
         enumSaveFunctionsString += 'default:\n'
-        enumSaveFunctionsString += 'this.file.writeUint32(' + str(len(self.members)) + ');\n'
+        enumSaveFunctionsString += 'wgpur.file.writeUint32(' + str(len(self.members)) + ');\n'
         enumSaveFunctionsString += '}\n'
         enumSaveFunctionsString += '}\n'
         
