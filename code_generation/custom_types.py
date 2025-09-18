@@ -56,7 +56,7 @@ $name.a = reader.ReadFloat64();
 )
 
 GPUExtent3D = CustomType("""
-if ($name instanceof Array) {
+if ($name instanceof Array || $name instanceof TypedArray) {
     __WebGPUReconstruct_file.writeUint32($name[0]);
     if ($name.length < 2) {
         $name.push(1);
@@ -85,7 +85,7 @@ $name.depthOrArrayLayers = reader.ReadUint32();
 )
 
 GPUOrigin3D = CustomType("""
-if ($name instanceof Array) {
+if ($name instanceof Array || $name instanceof TypedArray) {
     __WebGPUReconstruct_file.writeUint32($name[0]);
     __WebGPUReconstruct_file.writeUint32($name[1]);
     __WebGPUReconstruct_file.writeUint32($name[2]);

@@ -502,7 +502,7 @@ if (ArrayBuffer.isView(data)) {
 }
 
 let size2 = size;
-if (size2 instanceof Array) {
+if (size2 instanceof Array || size2 instanceof TypedArray) {
     size2 = {
         width: size[0],
         height: size[1],
@@ -578,7 +578,7 @@ if (destination.texture.sampleCount > 1) {
     console.error("copyExternalImageToTexture with sampleCount > 1 not supported by WebGPUReconstruct.");
 }
 let size = copySize;
-if (copySize instanceof Array) {
+if (copySize instanceof Array || copySize instanceof TypedArray) {
     size = {
         width: copySize[0],
         height: copySize[1],
